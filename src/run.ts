@@ -9,7 +9,9 @@ async function kubeval() {
     let manifests = manifestsInput.split('\n');
     const type = core.getInput('lintType', { required: true });
     if (type.toLocaleLowerCase() === 'dryrun') {
-        await kubectlEvalLint(manifests);
+        let namespace = core.getInput('namespace', {required: false});
+        if (!namespace) namespace = "default";
+        await kubectlEvalLint(manifests, namespace);
     } else {
         await kubeEvalLint(manifests);
     }

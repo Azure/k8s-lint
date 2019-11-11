@@ -59,11 +59,21 @@ async function downloadKubectl(version: string): Promise<string> {
     return kubectlPath;
 }
 
-export async function kubectlEvalLint(manifests: string[]) {
+async function validateConnection(toolPath: string) {
+    let toolRunner = new ToolRunner(toolPath, ['version'], { ignoreReturnCode: true });
+    const code = await toolRunner.exec();
+    if (code) {
+        core.setFailed("Kubernetes context not set");
+        process.exit(1);
+    }
+}
+
+export async function kubectlEvalLint(manifests: string[], namespace: string) {
     let toolPath = await downloadKubectl(await getStableKubectlVersion());
+    await validateConnection(toolPath);
     for (let i = 0; i < manifests.length; i++) {
         const manifest = manifests[i];
-        let toolRunner = new ToolRunner(toolPath, ['apply', '-f', manifest, '--server-dry-run']);
+        let toolRunner = new ToolRunner(toolPath, ['apply', '-f', manifest, '--server-dry-run', '--namespace', namespace]);
         await toolRunner.exec();
     }
 }
