@@ -5,7 +5,7 @@ Use this action to lint/validate your manifest files.
 #### Lint using kubeval
 ```yaml
 - uses: azure/k8s-lint@v1
-with:
+  with:
     manifests: |
         manifests/deployment.yml
         manifests/service.yml
@@ -13,11 +13,12 @@ with:
 
 #### Lint using kubernetes server dryrun
 
-Server dryrun would communicate with the kuberenetes server, so ensure that KUBECONFIG is available in the context
+Server dryrun would communicate with the kuberenetes server, so ensure that KUBECONFIG is available in the context.
+This works only for kubernetes versions >=1.12
 
 ```yaml
 - uses: azure/k8s-lint@v1
-with:
+  with:
     lintType: dryrun
     manifests: |
         manifests/deployment.yml
