@@ -9,7 +9,7 @@ import { getExecutableExtension } from './utils';
 import { ToolRunner } from "@actions/exec/lib/toolrunner";
 
 const kubectlToolName = 'kubectl';
-const stableKubectlVersion = 'v1.15.0';
+const stableKubectlVersion = 'v1.18.0';
 const stableVersionUrl = 'https://storage.googleapis.com/kubernetes-release/release/stable.txt';
 
 export function getkubectlDownloadURL(version: string): string {
@@ -73,7 +73,7 @@ export async function kubectlEvalLint(manifests: string[], namespace: string) {
     await validateConnection(toolPath);
     for (let i = 0; i < manifests.length; i++) {
         const manifest = manifests[i];
-        let toolRunner = new ToolRunner(toolPath, ['apply', '-f', manifest, '--server-dry-run', '--namespace', namespace]);
+        let toolRunner = new ToolRunner(toolPath, ['apply', '-f', manifest, '--dry-run=server', '--namespace', namespace]);
         await toolRunner.exec();
     }
 }

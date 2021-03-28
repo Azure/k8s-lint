@@ -52,21 +52,21 @@ describe('Testing all functions in kubectl file.', () => {
         expect(fs.readFileSync).toBeCalledWith('pathToTool', 'utf8');
     });
 
-    test('getStableKubectlVersion() - return default v1.15.0 if version read is empty', async () => {
+    test('getStableKubectlVersion() - return default v1.18.0 if version read is empty', async () => {
         jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool');
         jest.spyOn(fs, 'readFileSync').mockReturnValue('');
         jest.spyOn(core, 'debug').mockImplementation();
         jest.spyOn(core, 'warning').mockImplementation();
 
-        expect(await kubectl.getStableKubectlVersion()).toBe('v1.15.0');
+        expect(await kubectl.getStableKubectlVersion()).toBe('v1.18.0');
         expect(toolCache.downloadTool).toBeCalled();
         expect(fs.readFileSync).toBeCalledWith('pathToTool', 'utf8');
     });
 
-    test('getStableKubectlVersion() - return default v1.15.0 if unable to download file', async () => {
+    test('getStableKubectlVersion() - return default v1.18.0 if unable to download file', async () => {
         jest.spyOn(toolCache, 'downloadTool').mockRejectedValue('Unable to download.');
 
-        expect(await kubectl.getStableKubectlVersion()).toBe('v1.15.0');
+        expect(await kubectl.getStableKubectlVersion()).toBe('v1.18.0');
         expect(toolCache.downloadTool).toBeCalled();
     });
 
@@ -135,9 +135,9 @@ describe('Testing all functions in kubectl file.', () => {
         
         const sampleManifests = ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'];
         expect(await kubectl.kubectlEvalLint(sampleManifests, 'default'));
-        expect(ToolRunner).toBeCalledWith(path.join('pathToCachedTool', 'kubectl.exe'), ['apply', '-f', 'manifest1.yaml', '--server-dry-run', '--namespace', 'default']);
-        expect(ToolRunner).toBeCalledWith(path.join('pathToCachedTool', 'kubectl.exe'), ['apply', '-f', 'manifest2.yaml', '--server-dry-run', '--namespace', 'default']);
-        expect(ToolRunner).toBeCalledWith(path.join('pathToCachedTool', 'kubectl.exe'), ['apply', '-f', 'manifest3.yaml', '--server-dry-run', '--namespace', 'default']);
+        expect(ToolRunner).toBeCalledWith(path.join('pathToCachedTool', 'kubectl.exe'), ['apply', '-f', 'manifest1.yaml', '--dry-run=server', '--namespace', 'default']);
+        expect(ToolRunner).toBeCalledWith(path.join('pathToCachedTool', 'kubectl.exe'), ['apply', '-f', 'manifest2.yaml', '--dry-run=server', '--namespace', 'default']);
+        expect(ToolRunner).toBeCalledWith(path.join('pathToCachedTool', 'kubectl.exe'), ['apply', '-f', 'manifest3.yaml', '--dry-run=server', '--namespace', 'default']);
         expect(mockExecFn).toBeCalledTimes(4);
     });
 }); 
