@@ -1,4 +1,4 @@
-# Kubernetes lint action
+# Kubernetes lint action 
 
 Use this action to lint/validate your manifest files.
 
