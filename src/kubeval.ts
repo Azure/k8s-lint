@@ -11,7 +11,7 @@ import { getExecutableExtension } from './utils';
 
 const toolName = 'kubeval';
 
-function getkubevalDownloadURL(): string {
+export function getkubevalDownloadURL(): string {
     switch (os.type()) {
         case 'Linux':
             return "https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz";
@@ -25,7 +25,7 @@ function getkubevalDownloadURL(): string {
     }
 }
 
-async function downloadKubeval(): Promise<string> {
+export async function downloadKubeval(): Promise<string> {
     let kubevalDownloadPath = '';
     try {
         kubevalDownloadPath = await toolCache.downloadTool(getkubevalDownloadURL());

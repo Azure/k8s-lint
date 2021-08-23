@@ -4,7 +4,7 @@ import { kubeEvalLint } from './kubeval';
 import { kubectlEvalLint } from './kubectl';
 
 
-async function kubeval() {
+export async function kubeval() {
     let manifestsInput = core.getInput('manifests', { required: true });
     let manifests = manifestsInput.split('\n');
     const type = core.getInput('lintType', { required: true });
