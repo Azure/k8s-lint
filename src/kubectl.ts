@@ -9,10 +9,10 @@ import { getExecutableExtension } from './utils';
 import { ToolRunner } from "@actions/exec/lib/toolrunner";
 
 const kubectlToolName = 'kubectl';
-const stableKubectlVersion = 'v1.15.0';
+const stableKubectlVersion = 'v1.18.0';
 const stableVersionUrl = 'https://storage.googleapis.com/kubernetes-release/release/stable.txt';
 
-function getkubectlDownloadURL(version: string): string {
+export function getkubectlDownloadURL(version: string): string {
     switch (os.type()) {
         case 'Linux':
             return util.format('https://storage.googleapis.com/kubernetes-release/release/%s/bin/linux/amd64/kubectl', version);
@@ -27,7 +27,7 @@ function getkubectlDownloadURL(version: string): string {
     }
 }
 
-async function getStableKubectlVersion(): Promise<string> {
+export async function getStableKubectlVersion(): Promise<string> {
     return toolCache.downloadTool(stableVersionUrl).then((downloadPath) => {
         let version = fs.readFileSync(downloadPath, 'utf8').toString().trim();
         if (!version) {
@@ -41,7 +41,7 @@ async function getStableKubectlVersion(): Promise<string> {
     });
 }
 
-async function downloadKubectl(version: string): Promise<string> {
+export async function downloadKubectl(version: string): Promise<string> {
     let cachedToolpath = toolCache.find(kubectlToolName, version);
     let kubectlDownloadPath = '';
     if (!cachedToolpath) {
@@ -59,7 +59,7 @@ async function downloadKubectl(version: string): Promise<string> {
     return kubectlPath;
 }
 
-async function validateConnection(toolPath: string) {
+export async function validateConnection(toolPath: string) {
     let toolRunner = new ToolRunner(toolPath, ['version'], { ignoreReturnCode: true });
     const code = await toolRunner.exec();
     if (code) {
@@ -73,7 +73,7 @@ export async function kubectlEvalLint(manifests: string[], namespace: string) {
     await validateConnection(toolPath);
     for (let i = 0; i < manifests.length; i++) {
         const manifest = manifests[i];
-        let toolRunner = new ToolRunner(toolPath, ['apply', '-f', manifest, '--server-dry-run', '--namespace', namespace]);
+        let toolRunner = new ToolRunner(toolPath, ['apply', '-f', manifest, '--dry-run=server', '--namespace', namespace]);
         await toolRunner.exec();
     }
 }
