@@ -1,10 +1,7 @@
 {
-    "compilerOptions": {
-        "target": "ES6",
-        "module": "commonjs"
-    },
-    "exclude": [
-        "node_modules",
-        "__tests__"
-    ]
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs"
+  },
+  "exclude": ["node_modules", "test", "src/**/*.test.ts"]
 }

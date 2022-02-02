@@ -1,20 +1,21 @@
-import * as core from '@actions/core';
+import * as core from "@actions/core";
 
-import { kubeEvalLint } from './kubeval';
-import { kubectlEvalLint } from './kubectl';
-
+import { kubevalLint } from "./kubeval/kubeval";
+import { kubectlLint } from "./kubectl/kubectl";
 
 export async function kubeval() {
-    let manifestsInput = core.getInput('manifests', { required: true });
-    let manifests = manifestsInput.split('\n');
-    const type = core.getInput('lintType', { required: true });
-    if (type.toLocaleLowerCase() === 'dryrun') {
-        let namespace = core.getInput('namespace', {required: false});
-        if (!namespace) namespace = "default";
-        await kubectlEvalLint(manifests, namespace);
-    } else {
-        await kubeEvalLint(manifests);
-    }
+  // get inputs
+  const type = core.getInput("lintType", { required: true });
+  const manifestsInput = core.getInput("manifests", { required: true });
+  const manifests = manifestsInput.split("\n");
+
+  if (type.toLocaleLowerCase() === "dryrun") {
+    const namespace =
+      core.getInput("namespace", { required: false }) || "default";
+    await kubectlLint(manifests, namespace);
+  } else {
+    await kubevalLint(manifests);
+  }
 }
 
 kubeval().catch(core.setFailed);

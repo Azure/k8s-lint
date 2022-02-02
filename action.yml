@@ -1,21 +1,21 @@
-name: 'Lint k8s manifest files'
-description: 'Lint k8s manifest files'
-inputs: 
+name: "Lint k8s manifest files"
+description: "Lint k8s manifest files"
+inputs:
   # Please ensure you have used either azure/k8s-actions/aks-set-context or azure/k8s-actions/k8s-set-context in the workflow before this action if using dryrun
-  namespace:
-    description: 'Choose the target Kubernetes namespace. If the namespace is not provided, the commands will run in the default namespace.'
-    required: false
   manifests:
-    description: 'Path to the manifest files which will be used for deployment.'
+    description: "Path to the manifest files which will be used for deployment."
     required: true
-    default: ''
   lintType:
-    description: 'Acceptable values: kubeval, dryrun'
+    description: "Acceptable values: kubeval, dryrun"
     required: true
-    default: 'kubeval'
-  
+    default: "kubeval"
+  namespace:
+    description: "Target Kubernetes namespace. If the namespace is not provided, commands will run in the default namespace."
+    required: false
+    default: "default"
+
 branding:
-  color: 'green' # optional, decorates the entry in the GitHub Marketplace
+  color: "green" # optional, decorates the entry in the GitHub Marketplace
 runs:
-  using: 'node12'
-  main: 'lib/run.js'
+  using: "node12"
+  main: "lib/run.js"
