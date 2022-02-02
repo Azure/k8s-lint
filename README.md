@@ -1,35 +1,34 @@
 # Kubernetes lint action
 
-Use this action to lint/validate your manifest files.
+Use this action to lint/validate your manifest files. Refer to the action metadata file for details about all the inputs [action.yml](./action.yml).
 
-#### Lint using kubeval
+## Lint using kubeval
+
 ```yaml
 - uses: azure/k8s-lint@v1
   with:
     manifests: |
-        manifests/deployment.yml
-        manifests/service.yml
+      manifests/deployment.yml
+      manifests/service.yml
 ```
 
-#### Lint using kubernetes server dryrun
+## Lint using kubernetes server dryrun
 
-Server dryrun would communicate with the kuberenetes server, so ensure that KUBECONFIG is available in the context.
-This works only for kubernetes versions >=1.12
+Requires Kubectl to be installed (you can use the [Azure/setup-kubectl](https://github.com/Azure/setup-kubectl) action). Server dryrun will communicate with the kuberenetes server, so ensure that KUBECONFIG is available in the context. This works only for kubernetes versions >=1.12
 
 ```yaml
+- uses: azure/setup-kubectl@v2.0
 - uses: azure/k8s-lint@v1
   with:
     lintType: dryrun
     manifests: |
-        manifests/deployment.yml
-        manifests/service.yml     
+      manifests/deployment.yml
+      manifests/service.yml
 ```
 
-Refer to the action metadata file for details about all the inputs https://github.com/Azure/k8s-lint/blob/master/action.yml
+## Contributing
 
-# Contributing
-
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+This project welcomes contributions and suggestions. Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
 
