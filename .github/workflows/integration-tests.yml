@@ -1,6 +1,7 @@
 name: "Trigger Integration tests"
 on:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   minikube-integration-tests:
