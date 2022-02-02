@@ -1,7 +1,6 @@
 name: "Trigger Integration tests"
 on:
   pull_request:
-  workflow_dispatch:
 
 jobs:
   minikube-integration-tests:
@@ -20,7 +19,7 @@ jobs:
           driver: "none"
       - uses: actions/checkout@v1
       - id: action-npm-build
-        name: npm install and build
+        name: Npm install and build
         run: |
           echo $PR_BASE_REF
           if [[ $PR_BASE_REF != releases/* ]]; then
@@ -29,13 +28,13 @@ jobs:
           fi
 
       # valid manifests
-      - name: execute k8s-lint with valid kubeval
+      - name: Execute k8s-lint with valid kubeval
         uses: ./
         with:
           manifests: |
             test/valid-ingress.yml
             test/valid-service.yml
-      - name: execute k8s-lint with valid dryrun
+      - name: Execute k8s-lint with valid dryrun
         uses: ./
         with:
           lintType: dryrun
@@ -44,7 +43,7 @@ jobs:
             test/valid-service.yml
 
       # invalid manifests
-      - name: execute k8s-lint with invalid kubeval
+      - name: Execute k8s-lint with invalid kubeval
         id: invalidKubeval
         continue-on-error: true
         uses: ./
@@ -52,7 +51,7 @@ jobs:
           manifests: |
             test/invalid-ingress.yml
             test/invalid-service.yml
-      - name: execute k8s-lint with invalid dryrun
+      - name: Execute k8s-lint with invalid dryrun
         id: invalidDryrun
         continue-on-error: true
         uses: ./
