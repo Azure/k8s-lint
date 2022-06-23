@@ -7,9 +7,9 @@ Use this action to lint/validate your manifest files. Refer to the action metada
 ```yaml
 - uses: azure/k8s-lint@v1
   with:
-    manifests: |
-      manifests/deployment.yml
-      manifests/service.yml
+     manifests: |
+        manifests/deployment.yml
+        manifests/service.yml
 ```
 
 ## Lint using kubernetes server dryrun
@@ -20,10 +20,10 @@ Requires Kubectl to be installed (you can use the [Azure/setup-kubectl](https://
 - uses: azure/setup-kubectl@v2.0
 - uses: azure/k8s-lint@v1
   with:
-    lintType: dryrun
-    manifests: |
-      manifests/deployment.yml
-      manifests/service.yml
+     lintType: dryrun
+     manifests: |
+        manifests/deployment.yml
+        manifests/service.yml
 ```
 
 ## Contributing
