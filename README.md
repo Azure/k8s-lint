@@ -2,7 +2,7 @@
 
 Use this action to lint/validate your manifest files. Refer to the action metadata file for details about all the inputs [action.yml](./action.yml).
 
-## Lint using kubeval
+## Lint using kubeconform
 
 ```yaml
 - uses: azure/k8s-lint@v1
@@ -10,6 +10,7 @@ Use this action to lint/validate your manifest files. Refer to the action metada
      manifests: |
         manifests/deployment.yml
         manifests/service.yml
+     kubeconformOpts: -summary
 ```
 
 ## Lint using kubernetes server dryrun

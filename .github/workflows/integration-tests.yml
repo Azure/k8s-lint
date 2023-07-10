@@ -12,11 +12,13 @@ jobs:
       steps:
          - id: setup-minikube
            name: Setup Minikube
-           uses: manusa/actions-setup-minikube@v2.4.2
+           uses: medyagh/setup-minikube@c10a659eae62223c1c4a5e58cae49bae89600640
            with:
-              minikube version: 'v1.24.0'
-              kubernetes version: 'v1.17.8'
+              minikube-version: 1.24.0
+              kubernetes-version: 1.22.3
               driver: 'none'
+           timeout-minutes: 3
+
          - uses: actions/checkout@v1
          - id: action-npm-build
            name: Npm install and build
@@ -28,7 +30,7 @@ jobs:
               fi
 
          # valid manifests
-         - name: Execute k8s-lint with valid kubeval
+         - name: Execute k8s-lint with valid kubeconform
            uses: ./
            with:
               manifests: |
@@ -43,8 +45,8 @@ jobs:
                  test/valid-service.yml
 
          # invalid manifests
-         - name: Execute k8s-lint with invalid kubeval
-           id: invalidKubeval
+         - name: Execute k8s-lint with invalid kubeconform
+           id: invalidKubeconform
            continue-on-error: true
            uses: ./
            with:
@@ -61,5 +63,5 @@ jobs:
                  test/invalid-ingress.yml
                  test/invalid-service.yml
          - name: Verify invalid dryruns
-           if: steps.invalidKubeval.outcome != 'failure' || steps.invalidDryrun.outcome != 'failure'
+           if: steps.invalidKubeconform.outcome != 'failure' || steps.invalidDryrun.outcome != 'failure'
            run: exit 1

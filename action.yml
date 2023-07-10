@@ -6,9 +6,13 @@ inputs:
       description: 'Path to the manifest files which will be used for deployment.'
       required: true
    lintType:
-      description: 'Acceptable values: kubeval, dryrun'
+      description: 'Acceptable values: kubeconform, dryrun'
       required: true
-      default: 'kubeval'
+      default: 'kubeconform'
+   kubeconformOpts:
+      description: 'Options that are passed to kubeconform e.g. -schema-location'
+      required: false
+      default: '-summary'
    namespace:
       description: 'Target Kubernetes namespace. If the namespace is not provided, commands will run in the default namespace.'
       required: false
