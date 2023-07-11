@@ -5,19 +5,19 @@ on:
 jobs:
   minikube-integration-tests:
     name: Minikube Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22
     env:
       KUBECONFIG: /home/runner/.kube/config
       PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
     steps:
       - id: setup-minikube
         name: Setup Minikube
-        uses: manusa/actions-setup-minikube@v2.4.2
+        uses: manusa/actions-setup-minikube@v2.7.2
         with:
           minikube version: "v1.24.0"
           kubernetes version: "v1.17.8"
           driver: "none"
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - id: action-npm-build
         name: Npm install and build
         run: |
