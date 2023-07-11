@@ -1,28 +1,32 @@
 {
-    "name": "k8s-lint-action",
-    "version": "0.0.0",
-    "private": true,
-    "main": "lib/run.js",
-    "scripts": {
-        "build": "tsc --outDir ./lib --rootDir ./src",
-        "test": "jest",
-        "test-coverage": "jest --coverage"
-    },
-    "keywords": [
-        "actions"
-    ],
-    "author": "GitHub",
-    "license": "MIT",
-    "dependencies": {
-        "@actions/core": "^1.2.6",
-        "@actions/exec": "^1.0.0",
-        "@actions/tool-cache": "1.1.2"
-    },
-    "devDependencies": {
-        "@types/node": "^12.0.4",
-        "jest": "^26.0.1",
-        "@types/jest": "^25.2.2",
-        "ts-jest": "^25.5.1",
-        "typescript": "3.9.2"
-    }
+   "name": "k8s-lint-action",
+   "version": "0.0.0",
+   "private": true,
+   "main": "lib/run.js",
+   "scripts": {
+      "build": "ncc build src/run.ts -o lib",
+      "test": "jest",
+      "test-coverage": "jest --coverage",
+      "format": "prettier --write .",
+      "format-check": "prettier --check ."
+   },
+   "keywords": [
+      "actions"
+   ],
+   "author": "GitHub",
+   "license": "MIT",
+   "dependencies": {
+      "@actions/core": "^1.10.0",
+      "@actions/exec": "^1.0.0",
+      "@actions/tool-cache": "1.1.2"
+   },
+   "devDependencies": {
+      "@types/jest": "^26.0.0",
+      "@types/node": "^12.0.4",
+      "@vercel/ncc": "^0.34.0",
+      "jest": "^26.0.1",
+      "prettier": "2.7.1",
+      "ts-jest": "^26.0.0",
+      "typescript": "3.9.2"
+   }
 }

@@ -1,6 +1,6 @@
-name: "Trigger Integration tests"
+name: 'Trigger Integration tests'
 on:
-  pull_request:
+   pull_request:
 
 jobs:
   minikube-integration-tests:
@@ -26,40 +26,39 @@ jobs:
             npm install
             npm run build
           fi
+       # valid manifests
+       - name: Execute k8s-lint with valid kubeval
+         uses: ./
+         with:
+            manifests: |
+               test/valid-ingress.yml
+               test/valid-service.yml
+       - name: Execute k8s-lint with valid dryrun
+         uses: ./
+         with:
+            lintType: dryrun
+            manifests: |
+               test/valid-ingress.yml
+               test/valid-service.yml
 
-      # valid manifests
-      - name: Execute k8s-lint with valid kubeval
-        uses: ./
-        with:
-          manifests: |
-            test/valid-ingress.yml
-            test/valid-service.yml
-      - name: Execute k8s-lint with valid dryrun
-        uses: ./
-        with:
-          lintType: dryrun
-          manifests: |
-            test/valid-ingress.yml
-            test/valid-service.yml
-
-      # invalid manifests
-      - name: Execute k8s-lint with invalid kubeval
-        id: invalidKubeval
-        continue-on-error: true
-        uses: ./
-        with:
-          manifests: |
-            test/invalid-ingress.yml
-            test/invalid-service.yml
-      - name: Execute k8s-lint with invalid dryrun
-        id: invalidDryrun
-        continue-on-error: true
-        uses: ./
-        with:
-          lintType: dryrun
-          manifests: |
-            test/invalid-ingress.yml
-            test/invalid-service.yml
-      - name: Verify invalid dryruns
-        if: steps.invalidKubeval.outcome != 'failure' || steps.invalidDryrun.outcome != 'failure'
-        run: exit 1
+       # invalid manifests
+       - name: Execute k8s-lint with invalid kubeval
+         id: invalidKubeval
+         continue-on-error: true
+         uses: ./
+         with:
+            manifests: |
+               test/invalid-ingress.yml
+               test/invalid-service.yml
+       - name: Execute k8s-lint with invalid dryrun
+         id: invalidDryrun
+         continue-on-error: true
+         uses: ./
+         with:
+            lintType: dryrun
+            manifests: |
+               test/invalid-ingress.yml
+               test/invalid-service.yml
+       - name: Verify invalid dryruns
+         if: steps.invalidKubeval.outcome != 'failure' || steps.invalidDryrun.outcome != 'failure'
+         run: exit 1

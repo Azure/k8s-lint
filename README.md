@@ -7,9 +7,9 @@ Use this action to lint/validate your manifest files. Refer to the action metada
 ```yaml
 - uses: azure/k8s-lint@v1
   with:
-    manifests: |
-      manifests/deployment.yml
-      manifests/service.yml
+     manifests: |
+        manifests/deployment.yml
+        manifests/service.yml
 ```
 
 ## Lint using kubernetes server dryrun
@@ -20,10 +20,10 @@ Requires Kubectl to be installed (you can use the [Azure/setup-kubectl](https://
 - uses: azure/setup-kubectl@v2.0
 - uses: azure/k8s-lint@v1
   with:
-    lintType: dryrun
-    manifests: |
-      manifests/deployment.yml
-      manifests/service.yml
+     lintType: dryrun
+     manifests: |
+        manifests/deployment.yml
+        manifests/service.yml
 ```
 
 ## Contributing
@@ -39,3 +39,7 @@ provided by the bot. You will only need to do this once across all repos using o
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+## Support
+
+k8s-lint is an open source project that is [**not** covered by the Microsoft Azure support policy](https://support.microsoft.com/en-us/help/2941892/support-for-linux-and-open-source-technology-in-azure). [Please search open issues here](https://github.com/Azure/k8s-lint/issues), and if your issue isn't already represented please [open a new one](https://github.com/Azure/k8s-lint/issues/new/choose). The project maintainers will respond to the best of their abilities.
