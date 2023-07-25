@@ -1,5 +1,5 @@
 import * as run from '../src/run'
-import * as kubeval from './kubeval/kubeval'
+import * as kubeconform from './kubeconform/kubeconform'
 import * as kubectl from './kubectl/kubectl'
 import * as core from '@actions/core'
 
@@ -13,7 +13,7 @@ describe('run', () => {
       })
       jest.spyOn(kubectl, 'kubectlLint').mockImplementation()
 
-      expect(await run.kubeval()).toBeUndefined()
+      expect(await run.kubeconform()).toBeUndefined()
       expect(core.getInput).toBeCalledTimes(3)
       expect(kubectl.kubectlLint).toBeCalledWith(
          ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
@@ -30,7 +30,7 @@ describe('run', () => {
       })
       jest.spyOn(kubectl, 'kubectlLint').mockImplementation()
 
-      expect(await run.kubeval()).toBeUndefined()
+      expect(await run.kubeconform()).toBeUndefined()
       expect(core.getInput).toBeCalledTimes(3)
       expect(kubectl.kubectlLint).toBeCalledWith(
          ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
@@ -38,20 +38,37 @@ describe('run', () => {
       )
    })
 
-   test('runs kubeval on manifests based on input', async () => {
+   test('runs kubeconform on manifests based on input', async () => {
       jest.spyOn(core, 'getInput').mockImplementation((input) => {
          if (input == 'manifests')
             return 'manifest1.yaml\nmanifest2.yaml\nmanifest3.yaml'
-         if (input == 'lintType') return 'kubeval'
+         if (input == 'lintType') return 'kubeconform'
+         if (input == 'kubeconformOpts') return '-summary'
       })
-      jest.spyOn(kubeval, 'kubevalLint').mockImplementation()
+      jest.spyOn(kubeconform, 'kubeconformLint').mockImplementation()
 
-      expect(await run.kubeval()).toBeUndefined()
-      expect(core.getInput).toBeCalledTimes(2)
-      expect(kubeval.kubevalLint).toBeCalledWith([
-         'manifest1.yaml',
-         'manifest2.yaml',
-         'manifest3.yaml'
-      ])
+      expect(await run.kubeconform()).toBeUndefined()
+      expect(core.getInput).toBeCalledTimes(3)
+      expect(kubeconform.kubeconformLint).toBeCalledWith(
+         ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
+         '-summary'
+      )
+   })
+
+   test('uses -summary option if input not given', async () => {
+      jest.spyOn(core, 'getInput').mockImplementation((input) => {
+         if (input == 'manifests')
+            return 'manifest1.yaml\nmanifest2.yaml\nmanifest3.yaml'
+         if (input == 'lintType') return 'kubeconform'
+         if (input == 'kubeconformOpts') return ''
+      })
+      jest.spyOn(kubeconform, 'kubeconformLint').mockImplementation()
+
+      expect(await run.kubeconform()).toBeUndefined()
+      expect(core.getInput).toBeCalledTimes(3)
+      expect(kubeconform.kubeconformLint).toBeCalledWith(
+         ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
+         '-summary'
+      )
    })
 })

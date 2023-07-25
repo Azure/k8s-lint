@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
 
-import {kubevalLint} from './kubeval/kubeval'
+import {kubeconformLint} from './kubeconform/kubeconform'
 import {kubectlLint} from './kubectl/kubectl'
 
-export async function kubeval() {
+export async function kubeconform() {
    // get inputs
    const type = core.getInput('lintType', {required: true})
    const manifestsInput = core.getInput('manifests', {required: true})
@@ -14,8 +14,10 @@ export async function kubeval() {
          core.getInput('namespace', {required: false}) || 'default'
       await kubectlLint(manifests, namespace)
    } else {
-      await kubevalLint(manifests)
+      const kubeconformOpts =
+         core.getInput('kubeconformOpts', {required: false}) || '-summary'
+      await kubeconformLint(manifests, kubeconformOpts)
    }
 }
 
-kubeval().catch(core.setFailed)
+kubeconform().catch(core.setFailed)
