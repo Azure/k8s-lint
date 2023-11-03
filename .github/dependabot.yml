@@ -1,0 +1,25 @@
+---
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    labels:
+      - dependabot
+      - actions
+    schedule:
+      interval: weekly
+      day: saturday
+      time: '09:00'
+      timezone: Asia/Kolkata
+
+  - package-ecosystem: npm
+    directory: /
+    labels:
+      - dependabot
+      - npm
+    schedule:
+      interval: weekly
+      day: saturday
+      time: '09:00'
+      timezone: Asia/Kolkata

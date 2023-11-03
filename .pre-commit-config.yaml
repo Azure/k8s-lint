@@ -1,0 +1,76 @@
+---
+repos:
+  - repo: meta
+    hooks:
+      - id: check-hooks-apply
+      - id: check-useless-excludes
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: trailing-whitespace
+        args:
+          - --markdown-linebreak-ext=md
+        exclude: \.gitignore
+
+  - repo: local
+    hooks:
+      - id: prettier
+        name: Prettier
+        description: Format using prettier
+        language: system
+        entry: npx prettier
+        args:
+          - --write
+          - --list-different
+          - --ignore-unknown
+        types:
+          - text
+
+      - id: eslint
+        name: ESLint
+        description: Lint using eslint
+        language: system
+        entry: npx eslint
+        args:
+          - --fix
+        types:
+          - javascript
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.27.1
+    hooks:
+      - id: check-github-workflows
+
+  - repo: https://github.com/lyz-code/yamlfix
+    rev: 1.15.0
+    hooks:
+      - id: yamlfix
+        args:
+          - --config-file
+          - .yamlfix.toml
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.32.0
+    hooks:
+      - id: yamllint
+        args:
+          - --strict
+
+  - repo: https://github.com/sirwart/ripsecrets
+    rev: v0.1.7
+    hooks:
+      - id: ripsecrets
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.16.22
+    hooks:
+      - id: typos
+        args:
+          - --force-exclude

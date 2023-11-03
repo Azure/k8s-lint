@@ -1,8 +1,9 @@
-import * as os from 'os'
+import os from 'node:os';
 
 export function getExecutableExtension(): string {
-   if (os.type().match(/^Win/)) {
-      return '.exe'
-   }
-   return ''
+  if (os.type().match(/^Win/)) {
+    return '.exe';
+  }
+
+  return '';
 }

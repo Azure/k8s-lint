@@ -1,67 +1,82 @@
-name: 'Trigger Integration tests'
+---
+name: Integration Tests
+
 on:
-   pull_request:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-   minikube-integration-tests:
-      name: Minikube Integration Tests
-      runs-on: ubuntu-latest
-      env:
-         KUBECONFIG: /home/runner/.kube/config
-         PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
-      steps:
-         - id: setup-minikube
-           name: Setup Minikube
-           uses: medyagh/setup-minikube@c10a659eae62223c1c4a5e58cae49bae89600640
-           with:
-              minikube-version: 1.24.0
-              kubernetes-version: 1.22.3
-              driver: 'none'
-           timeout-minutes: 3
+  minikube-integration-tests:
+    name: Minikube Integration Tests
 
-         - uses: actions/checkout@v1
-         - id: action-npm-build
-           name: Npm install and build
-           run: |
-              echo $PR_BASE_REF
-              if [[ $PR_BASE_REF != releases/* ]]; then
-                npm install
-                npm run build
-              fi
+    runs-on: ubuntu-22.04
+    env:
+      KUBECONFIG: /home/runner/.kube/config
+      VALID_MANIFESTS: |
+        test/valid-ingress.yaml
+        test/valid-service.yaml
+      INVALID_MANIFESTS: |
+        test/invalid-ingress.yml
+        test/invalid-service.yml
 
-         # valid manifests
-         - name: Execute k8s-lint with valid kubeconform
-           uses: ./
-           with:
-              manifests: |
-                 test/valid-ingress.yml
-                 test/valid-service.yml
-         - name: Execute k8s-lint with valid dryrun
-           uses: ./
-           with:
-              lintType: dryrun
-              manifests: |
-                 test/valid-ingress.yml
-                 test/valid-service.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        kubernetes-version:
+          - 1.28.3
 
-         # invalid manifests
-         - name: Execute k8s-lint with invalid kubeconform
-           id: invalidKubeconform
-           continue-on-error: true
-           uses: ./
-           with:
-              manifests: |
-                 test/invalid-ingress.yml
-                 test/invalid-service.yml
-         - name: Execute k8s-lint with invalid dryrun
-           id: invalidDryrun
-           continue-on-error: true
-           uses: ./
-           with:
-              lintType: dryrun
-              manifests: |
-                 test/invalid-ingress.yml
-                 test/invalid-service.yml
-         - name: Verify invalid dryruns
-           if: steps.invalidKubeconform.outcome != 'failure' || steps.invalidDryrun.outcome != 'failure'
-           run: exit 1
+    steps:
+      - name: Setup minikube
+        uses: medyagh/setup-minikube@fb886c58d699f41bd6e7c7bb41cdb6eab5e15042
+        with:
+          driver: none
+          minikube-version: 1.31.2
+
+          kubernetes-version: ${{ matrix.kubernetes-version }}
+        timeout-minutes: 3
+
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+      - name: Install and build
+        shell: bash
+        run: |
+          pr_base_ref="${{ github.event.pull_request.base.ref }}"
+          echo "${pr_base_ref}"
+          if [[ "${pr_base_ref}" != releases/* ]]; then
+            npm ci
+            npm run build
+          fi
+
+      - name: Execute k8s-lint (kubeconform) with valid manifests
+        uses: ./
+        with:
+          manifests: ${{ env.VALID_MANIFESTS }}
+      - name: Execute k8s-lint (dry-run) with valid manifests
+        uses: ./
+        with:
+          lintType: dry-run
+          manifests: ${{ env.VALID_MANIFESTS }}
+
+      - name: Execute k8s-lint (kubeconform) with invalid manifests
+        id: invalid-kubeconform
+        uses: ./
+        continue-on-error: true
+        with:
+          manifests: ${{ env.INVALID_MANIFESTS }}
+      - name: Execute k8s-lint (dry-run) with invalid manifests
+        id: invalid-dry-run
+        uses: ./
+        continue-on-error: true
+        with:
+          lintType: dry-run
+          manifests: ${{ env.INVALID_MANIFESTS }}
+
+      - name: Verify invalid tests
+        if: steps.invalid-kubeconform.outcome != 'failure' || steps.invalid-dry-run.outcome != 'failure'
+        shell: bash
+        run: exit 1

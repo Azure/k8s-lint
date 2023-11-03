@@ -1,23 +1,20 @@
-import * as core from '@actions/core'
+import { getInput, setFailed } from '@actions/core';
 
-import {kubeconformLint} from './kubeconform/kubeconform'
-import {kubectlLint} from './kubectl/kubectl'
+import * as kubeconform from './kubeconform/index.js';
+import * as kubectl from './kubectl/index.js';
 
-export async function kubeconform() {
-   // get inputs
-   const type = core.getInput('lintType', {required: true})
-   const manifestsInput = core.getInput('manifests', {required: true})
-   const manifests = manifestsInput.split('\n')
+export async function run() {
+  const type = getInput('lint-type', { required: true });
+  const manifestsInput = getInput('manifests', { required: true });
+  const manifests = manifestsInput.split('\n');
 
-   if (type.toLocaleLowerCase() === 'dryrun') {
-      const namespace =
-         core.getInput('namespace', {required: false}) || 'default'
-      await kubectlLint(manifests, namespace)
-   } else {
-      const kubeconformOpts =
-         core.getInput('kubeconformOpts', {required: false}) || '-summary'
-      await kubeconformLint(manifests, kubeconformOpts)
-   }
+  if (type.toLocaleLowerCase() === 'dry-run') {
+    const namespace = getInput('namespace', { required: false }) || 'default';
+    await kubectl.kubectlLint(manifests, namespace);
+  } else {
+    const kubeconformOpts = getInput('kubeconform-options', { required: false }) || '-summary';
+    await kubeconform.kubeconformLint(manifests, kubeconformOpts);
+  }
 }
 
-kubeconform().catch(core.setFailed)
+run().catch(setFailed);
