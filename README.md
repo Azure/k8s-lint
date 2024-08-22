@@ -5,7 +5,7 @@ Use this action to lint/validate your manifest files. Refer to the action metada
 ## Lint using kubeconform
 
 ```yaml
-- uses: azure/k8s-lint@v1
+- uses: azure/k8s-lint@v3
   with:
      manifests: |
         manifests/deployment.yml
@@ -18,8 +18,8 @@ Use this action to lint/validate your manifest files. Refer to the action metada
 Requires Kubectl to be installed (you can use the [Azure/setup-kubectl](https://github.com/Azure/setup-kubectl) action). Server dryrun will communicate with the kuberenetes server, so ensure that KUBECONFIG is available in the context. This works only for kubernetes versions >=1.12
 
 ```yaml
-- uses: azure/setup-kubectl@v2.0
-- uses: azure/k8s-lint@v1
+- uses: azure/setup-kubectl@v4
+- uses: azure/k8s-lint@v3
   with:
      lintType: dryrun
      manifests: |
