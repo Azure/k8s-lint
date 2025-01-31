@@ -5,7 +5,7 @@ on:
 jobs:
    minikube-integration-tests:
       name: Minikube Integration Tests
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-22.04
       env:
          KUBECONFIG: /home/runner/.kube/config
          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
