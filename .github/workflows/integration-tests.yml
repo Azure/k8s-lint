@@ -2,6 +2,9 @@ name: 'Trigger Integration tests'
 on:
    pull_request:
 
+permissions:
+   contents: read
+
 jobs:
    minikube-integration-tests:
       name: Minikube Integration Tests
@@ -25,7 +28,7 @@ jobs:
            run: |
               echo $PR_BASE_REF
               if [[ $PR_BASE_REF != releases/* ]]; then
-                npm install
+                npm ci
                 npm run build
               fi
 
