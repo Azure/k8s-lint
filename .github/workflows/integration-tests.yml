@@ -15,7 +15,7 @@ jobs:
       steps:
          - id: setup-minikube
            name: Setup Minikube
-           uses: medyagh/setup-minikube@9713609d49ea747ed60e3ec4438f8c4ba2cad675
+           uses: medyagh/setup-minikube@3fa06c2257eb48a3ca8e24fedece59ee2479255a
            with:
               minikube-version: 1.24.0
               kubernetes-version: 1.22.3
