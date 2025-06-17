@@ -40,30 +40,39 @@ describe('Kubectl', () => {
          'manifest3.yaml'
       ]
       expect(await kubectl.kubectlLint(sampleManifests, 'default'))
-      expect(ToolRunner).toHaveBeenCalledWith(path.join(pathToTool, 'kubectl.exe'), [
-         'apply',
-         '-f',
-         'manifest1.yaml',
-         '--dry-run=server',
-         '--namespace',
-         'default'
-      ])
-      expect(ToolRunner).toHaveBeenCalledWith(path.join(pathToTool, 'kubectl.exe'), [
-         'apply',
-         '-f',
-         'manifest2.yaml',
-         '--dry-run=server',
-         '--namespace',
-         'default'
-      ])
-      expect(ToolRunner).toHaveBeenCalledWith(path.join(pathToTool, 'kubectl.exe'), [
-         'apply',
-         '-f',
-         'manifest3.yaml',
-         '--dry-run=server',
-         '--namespace',
-         'default'
-      ])
+      expect(ToolRunner).toHaveBeenCalledWith(
+         path.join(pathToTool, 'kubectl.exe'),
+         [
+            'apply',
+            '-f',
+            'manifest1.yaml',
+            '--dry-run=server',
+            '--namespace',
+            'default'
+         ]
+      )
+      expect(ToolRunner).toHaveBeenCalledWith(
+         path.join(pathToTool, 'kubectl.exe'),
+         [
+            'apply',
+            '-f',
+            'manifest2.yaml',
+            '--dry-run=server',
+            '--namespace',
+            'default'
+         ]
+      )
+      expect(ToolRunner).toHaveBeenCalledWith(
+         path.join(pathToTool, 'kubectl.exe'),
+         [
+            'apply',
+            '-f',
+            'manifest3.yaml',
+            '--dry-run=server',
+            '--namespace',
+            'default'
+         ]
+      )
       expect(mockExecFn).toHaveBeenCalledTimes(3)
    })
 })
