@@ -40,7 +40,7 @@ describe('Kubectl', () => {
          'manifest3.yaml'
       ]
       expect(await kubectl.kubectlLint(sampleManifests, 'default'))
-      expect(ToolRunner).toBeCalledWith(path.join(pathToTool, 'kubectl.exe'), [
+      expect(ToolRunner).toHaveBeenCalledWith(path.join(pathToTool, 'kubectl.exe'), [
          'apply',
          '-f',
          'manifest1.yaml',
@@ -48,7 +48,7 @@ describe('Kubectl', () => {
          '--namespace',
          'default'
       ])
-      expect(ToolRunner).toBeCalledWith(path.join(pathToTool, 'kubectl.exe'), [
+      expect(ToolRunner).toHaveBeenCalledWith(path.join(pathToTool, 'kubectl.exe'), [
          'apply',
          '-f',
          'manifest2.yaml',
@@ -56,7 +56,7 @@ describe('Kubectl', () => {
          '--namespace',
          'default'
       ])
-      expect(ToolRunner).toBeCalledWith(path.join(pathToTool, 'kubectl.exe'), [
+      expect(ToolRunner).toHaveBeenCalledWith(path.join(pathToTool, 'kubectl.exe'), [
          'apply',
          '-f',
          'manifest3.yaml',
@@ -64,6 +64,6 @@ describe('Kubectl', () => {
          '--namespace',
          'default'
       ])
-      expect(mockExecFn).toBeCalledTimes(3)
+      expect(mockExecFn).toHaveBeenCalledTimes(3)
    })
 })
