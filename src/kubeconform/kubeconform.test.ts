@@ -31,10 +31,10 @@ describe('Kubeconform', () => {
    ])(
       'getKubeconformArch() - return on %s os arch %s kubeconform arch',
       (osArch, kubeconformArch) => {
-         jest.spyOn(os, 'arch').mockReturnValue(osArch)
+         jest.spyOn(os, 'arch').mockReturnValue(osArch as 'arm64' | 'x64')
 
          expect(kubeconform.getKubeconformArch()).toBe(kubeconformArch)
-         expect(os.arch).toBeCalled()
+         expect(os.arch).toHaveBeenCalled()
       }
    )
 
@@ -49,7 +49,7 @@ describe('Kubeconform', () => {
          expect(kubeconform.getKubeconformDownloadUrl(arch)).toBe(
             kubeconformLinuxUrl
          )
-         expect(os.type).toBeCalled()
+         expect(os.type).toHaveBeenCalled()
       }
    )
 
@@ -64,7 +64,7 @@ describe('Kubeconform', () => {
          expect(kubeconform.getKubeconformDownloadUrl(arch)).toBe(
             kubeconformLinuxUrl
          )
-         expect(os.type).toBeCalled()
+         expect(os.type).toHaveBeenCalled()
       }
    )
 
@@ -79,7 +79,7 @@ describe('Kubeconform', () => {
          expect(kubeconform.getKubeconformDownloadUrl(arch)).toBe(
             kubeconformLinuxUrl
          )
-         expect(os.type).toBeCalled()
+         expect(os.type).toHaveBeenCalled()
       }
    )
 
@@ -95,14 +95,14 @@ describe('Kubeconform', () => {
       expect(await kubeconform.downloadKubeconform()).toBe(
          path.join('pathToExtractedTool', 'kubeconform.exe')
       )
-      expect(os.type).toBeCalled()
-      expect(toolCache.downloadTool).toBeCalled()
-      expect(toolCache.extractZip).toBeCalledWith('pathToTool')
-      expect(fs.chmodSync).toBeCalledWith(
+      expect(os.type).toHaveBeenCalled()
+      expect(toolCache.downloadTool).toHaveBeenCalled()
+      expect(toolCache.extractZip).toHaveBeenCalledWith('pathToTool')
+      expect(fs.chmodSync).toHaveBeenCalledWith(
          path.join('pathToExtractedTool', 'kubeconform.exe'),
          '755'
       )
-      expect(core.addPath).toBeCalledWith('pathToExtractedTool')
+      expect(core.addPath).toHaveBeenCalledWith('pathToExtractedTool')
    })
 
    test('downloads kubeconform, extract tar, and returns path to it', async () => {
@@ -120,20 +120,20 @@ describe('Kubeconform', () => {
       expect(await kubeconform.downloadKubeconform()).toBe(
          path.join('pathToExtractedTool', 'kubeconform')
       )
-      expect(os.type).toBeCalled()
-      expect(toolCache.downloadTool).toBeCalled()
-      expect(io.cp).toBeCalledWith(
+      expect(os.type).toHaveBeenCalled()
+      expect(toolCache.downloadTool).toHaveBeenCalled()
+      expect(io.cp).toHaveBeenCalledWith(
          path.join('pathToToolDir', 'tool'),
          path.join('pathToToolDir', 'tool.tar.gz')
       )
-      expect(toolCache.extractTar).toBeCalledWith(
+      expect(toolCache.extractTar).toHaveBeenCalledWith(
          path.join('pathToToolDir', 'tool.tar.gz')
       )
-      expect(fs.chmodSync).toBeCalledWith(
+      expect(fs.chmodSync).toHaveBeenCalledWith(
          path.join('pathToExtractedTool', 'kubeconform'),
          '755'
       )
-      expect(core.addPath).toBeCalledWith('pathToExtractedTool')
+      expect(core.addPath).toHaveBeenCalledWith('pathToExtractedTool')
    })
 
    test('throws error if download tool fails', async () => {
@@ -143,8 +143,8 @@ describe('Kubeconform', () => {
          .mockRejectedValue(new Error('Unable to download'))
 
       await expect(kubeconform.downloadKubeconform()).rejects.toThrow()
-      expect(os.type).toBeCalled()
-      expect(toolCache.downloadTool).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
+      expect(toolCache.downloadTool).toHaveBeenCalled()
    })
 
    test('Gets path to kubeconform and uses it on manifests', async () => {
@@ -160,20 +160,20 @@ describe('Kubeconform', () => {
       expect(
          await kubeconform.kubeconformLint(sampleManifests, kubeconformOpts)
       ).toBeUndefined()
-      expect(io.which).toBeCalledWith('kubeconform', false)
-      expect(ToolRunner).toBeCalledWith('pathToTool', [
+      expect(io.which).toHaveBeenCalledWith('kubeconform', false)
+      expect(ToolRunner).toHaveBeenCalledWith('pathToTool', [
          '-summary',
          'manifest1.yaml'
       ])
-      expect(ToolRunner).toBeCalledWith('pathToTool', [
+      expect(ToolRunner).toHaveBeenCalledWith('pathToTool', [
          '-summary',
          'manifest2.yaml'
       ])
-      expect(ToolRunner).toBeCalledWith('pathToTool', [
+      expect(ToolRunner).toHaveBeenCalledWith('pathToTool', [
          '-summary',
          'manifest3.yaml'
       ])
-      expect(mockExecFn).toBeCalledTimes(3)
+      expect(mockExecFn).toHaveBeenCalledTimes(3)
    })
 
    test('check if kubeconform is already installed, else download, and use it on manifests', async () => {
@@ -196,20 +196,20 @@ describe('Kubeconform', () => {
       expect(
          await kubeconform.kubeconformLint(sampleManifests, kubeconformOpts)
       ).toBeUndefined()
-      expect(io.which).toBeCalledWith('kubeconform', false)
-      expect(ToolRunner).toBeCalledWith(
+      expect(io.which).toHaveBeenCalledWith('kubeconform', false)
+      expect(ToolRunner).toHaveBeenCalledWith(
          path.join('pathToExtractedTool', 'kubeconform.exe'),
          ['-summary', 'manifest1.yaml']
       )
-      expect(ToolRunner).toBeCalledWith(
+      expect(ToolRunner).toHaveBeenCalledWith(
          path.join('pathToExtractedTool', 'kubeconform.exe'),
          ['-summary', 'manifest2.yaml']
       )
-      expect(ToolRunner).toBeCalledWith(
+      expect(ToolRunner).toHaveBeenCalledWith(
          path.join('pathToExtractedTool', 'kubeconform.exe'),
          ['-summary', 'manifest3.yaml']
       )
-      expect(mockExecFn).toBeCalledTimes(3)
+      expect(mockExecFn).toHaveBeenCalledTimes(3)
    })
 
    test('throw if kubeconform fails on a manifest', async () => {
@@ -221,11 +221,11 @@ describe('Kubeconform', () => {
       await expect(
          kubeconform.kubeconformLint(sampleManifests, kubeconformOpts)
       ).rejects.toThrow()
-      expect(io.which).toBeCalledWith('kubeconform', false)
-      expect(ToolRunner).toBeCalledWith('pathToTool', [
+      expect(io.which).toHaveBeenCalledWith('kubeconform', false)
+      expect(ToolRunner).toHaveBeenCalledWith('pathToTool', [
          '-summary',
          'manifest1.yaml'
       ])
-      expect(mockExecFn).toBeCalledTimes(1)
+      expect(mockExecFn).toHaveBeenCalledTimes(1)
    })
 })

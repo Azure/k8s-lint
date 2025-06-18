@@ -14,8 +14,8 @@ describe('run', () => {
       jest.spyOn(kubectl, 'kubectlLint').mockImplementation()
 
       expect(await run.kubeconform()).toBeUndefined()
-      expect(core.getInput).toBeCalledTimes(3)
-      expect(kubectl.kubectlLint).toBeCalledWith(
+      expect(core.getInput).toHaveBeenCalledTimes(3)
+      expect(kubectl.kubectlLint).toHaveBeenCalledWith(
          ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
          'sampleNamespace'
       )
@@ -31,8 +31,8 @@ describe('run', () => {
       jest.spyOn(kubectl, 'kubectlLint').mockImplementation()
 
       expect(await run.kubeconform()).toBeUndefined()
-      expect(core.getInput).toBeCalledTimes(3)
-      expect(kubectl.kubectlLint).toBeCalledWith(
+      expect(core.getInput).toHaveBeenCalledTimes(3)
+      expect(kubectl.kubectlLint).toHaveBeenCalledWith(
          ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
          'default'
       )
@@ -48,8 +48,8 @@ describe('run', () => {
       jest.spyOn(kubeconform, 'kubeconformLint').mockImplementation()
 
       expect(await run.kubeconform()).toBeUndefined()
-      expect(core.getInput).toBeCalledTimes(3)
-      expect(kubeconform.kubeconformLint).toBeCalledWith(
+      expect(core.getInput).toHaveBeenCalledTimes(3)
+      expect(kubeconform.kubeconformLint).toHaveBeenCalledWith(
          ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
          '-summary'
       )
@@ -65,8 +65,8 @@ describe('run', () => {
       jest.spyOn(kubeconform, 'kubeconformLint').mockImplementation()
 
       expect(await run.kubeconform()).toBeUndefined()
-      expect(core.getInput).toBeCalledTimes(3)
-      expect(kubeconform.kubeconformLint).toBeCalledWith(
+      expect(core.getInput).toHaveBeenCalledTimes(3)
+      expect(kubeconform.kubeconformLint).toHaveBeenCalledWith(
          ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
          '-summary'
       )
