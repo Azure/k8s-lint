@@ -5,7 +5,7 @@
 ### Changed
 
 - #94 [Depencies Update Plus Integration Tests Fix](https://github.com/Azure/k8s-lint/pull/94)
-- - #95 [Add code quality analysis for this repo as standard.](https://github.com/Azure/k8s-lint/pull/95)
+- #95 [Add code quality analysis for this repo as standard.](https://github.com/Azure/k8s-lint/pull/95)
 - #97 [Pin SHA for security and stability](https://github.com/Azure/k8s-lint/pull/97)
 - #103 [Strengthening GitHub Workflow Security: Token Permissions & Dependencies](https://github.com/Azure/k8s-lint/pull/103)
 - #130 [Fix the major update packages including Jest.](https://github.com/Azure/k8s-lint/pull/130)
