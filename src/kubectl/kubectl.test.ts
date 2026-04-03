@@ -1,39 +1,54 @@
 import * as kubectl from './kubectl'
 import * as io from '@actions/io'
+import * as actionsExec from '@actions/exec'
 import * as path from 'path'
-import {ToolRunner} from '@actions/exec/lib/toolrunner'
-import {describe, expect, test, vi} from 'vitest'
+import {beforeEach, describe, expect, test, vi} from 'vitest'
 
-var mockStatusCode: number
-const mockExecFn = vi.fn().mockImplementation(() => mockStatusCode)
-vi.mock('@actions/exec/lib/toolrunner', () => {
+const execMockState = vi.hoisted(() => {
+   const state = {
+      statusCode: 0,
+      exec: vi.fn(async () => state.statusCode)
+   }
+
+   return state
+})
+
+const ioMockState = vi.hoisted(() => ({
+   which: vi.fn(async () => '')
+}))
+
+vi.mock('@actions/io', () => {
    return {
-      ToolRunner: vi.fn().mockImplementation(() => {
-         return {
-            exec: mockExecFn
-         }
-      })
+      which: ioMockState.which
+   }
+})
+
+vi.mock('@actions/exec', () => {
+   return {
+      exec: execMockState.exec
    }
 })
 
 describe('Kubectl', () => {
+   beforeEach(() => {
+      vi.clearAllMocks()
+   })
+
    test('throws if kubeconfig not set', async () => {
       await expect(kubectl.kubectlLint([], 'default')).rejects.toThrow()
    })
 
    test("throws if kubectl can't be found", async () => {
       process.env['KUBECONFIG'] = 'kubeconfig'
-      vi.spyOn(io, 'which').mockReturnValue(Promise.resolve(''))
+      ioMockState.which.mockResolvedValue('')
       await expect(kubectl.kubectlLint([], 'default')).rejects.toThrow()
    })
 
    test('gets kubectl, validates kubeconfig, and lints the manifests', async () => {
       process.env['KUBECONFIG'] = 'kubeconfig'
       const pathToTool = 'pathToTool'
-      vi.spyOn(io, 'which').mockResolvedValue(
-         path.join(pathToTool, 'kubectl.exe')
-      )
-      mockStatusCode = 0
+      ioMockState.which.mockResolvedValue(path.join(pathToTool, 'kubectl.exe'))
+      execMockState.statusCode = 0
 
       const sampleManifests = [
          'manifest1.yaml',
@@ -41,7 +56,7 @@ describe('Kubectl', () => {
          'manifest3.yaml'
       ]
       expect(await kubectl.kubectlLint(sampleManifests, 'default'))
-      expect(ToolRunner).toHaveBeenCalledWith(
+      expect(actionsExec.exec).toHaveBeenCalledWith(
          path.join(pathToTool, 'kubectl.exe'),
          [
             'apply',
@@ -52,7 +67,7 @@ describe('Kubectl', () => {
             'default'
          ]
       )
-      expect(ToolRunner).toHaveBeenCalledWith(
+      expect(actionsExec.exec).toHaveBeenCalledWith(
          path.join(pathToTool, 'kubectl.exe'),
          [
             'apply',
@@ -63,7 +78,7 @@ describe('Kubectl', () => {
             'default'
          ]
       )
-      expect(ToolRunner).toHaveBeenCalledWith(
+      expect(actionsExec.exec).toHaveBeenCalledWith(
          path.join(pathToTool, 'kubectl.exe'),
          [
             'apply',
@@ -74,6 +89,6 @@ describe('Kubectl', () => {
             'default'
          ]
       )
-      expect(mockExecFn).toHaveBeenCalledTimes(3)
+      expect(execMockState.exec).toHaveBeenCalledTimes(3)
    })
 })

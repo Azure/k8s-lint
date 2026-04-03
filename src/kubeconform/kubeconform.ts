@@ -4,7 +4,7 @@ import * as fs from 'fs'
 import * as toolCache from '@actions/tool-cache'
 import * as core from '@actions/core'
 import * as io from '@actions/io'
-import {ToolRunner} from '@actions/exec/lib/toolrunner'
+import * as actionsExec from '@actions/exec'
 import {getExecutableExtension} from '../utils'
 
 const TOOL_NAME = 'kubeconform'
@@ -24,11 +24,10 @@ export async function kubeconformLint(
    const toolPath =
       (await io.which(TOOL_NAME, false)) || (await downloadKubeconform())
    for (const manifest of manifests) {
-      const toolRunner = new ToolRunner(toolPath, [
+      const code = await actionsExec.exec(toolPath, [
          kubeconformOptions,
          manifest
       ])
-      const code = await toolRunner.exec()
 
       if (code != 0) {
          throw Error('Your manifest has errors')

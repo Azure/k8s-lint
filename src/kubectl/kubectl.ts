@@ -1,4 +1,4 @@
-import {ToolRunner} from '@actions/exec/lib/toolrunner'
+import * as actionsExec from '@actions/exec'
 import * as io from '@actions/io'
 
 const TOOL_NAME = 'kubectl'
@@ -14,7 +14,7 @@ export async function kubectlLint(manifests: string[], namespace: string) {
       )
 
    for (const manifest of manifests) {
-      const toolRunner = new ToolRunner(kubectlPath, [
+      await actionsExec.exec(kubectlPath, [
          'apply',
          '-f',
          manifest,
@@ -22,6 +22,5 @@ export async function kubectlLint(manifests: string[], namespace: string) {
          '--namespace',
          namespace
       ])
-      await toolRunner.exec()
    }
 }
