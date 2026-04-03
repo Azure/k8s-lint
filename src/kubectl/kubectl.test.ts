@@ -2,12 +2,13 @@ import * as kubectl from './kubectl'
 import * as io from '@actions/io'
 import * as path from 'path'
 import {ToolRunner} from '@actions/exec/lib/toolrunner'
+import {describe, expect, test, vi} from 'vitest'
 
 var mockStatusCode: number
-const mockExecFn = jest.fn().mockImplementation(() => mockStatusCode)
-jest.mock('@actions/exec/lib/toolrunner', () => {
+const mockExecFn = vi.fn().mockImplementation(() => mockStatusCode)
+vi.mock('@actions/exec/lib/toolrunner', () => {
    return {
-      ToolRunner: jest.fn().mockImplementation(() => {
+      ToolRunner: vi.fn().mockImplementation(() => {
          return {
             exec: mockExecFn
          }
@@ -22,16 +23,16 @@ describe('Kubectl', () => {
 
    test("throws if kubectl can't be found", async () => {
       process.env['KUBECONFIG'] = 'kubeconfig'
-      jest.spyOn(io, 'which').mockReturnValue(Promise.resolve(''))
+      vi.spyOn(io, 'which').mockReturnValue(Promise.resolve(''))
       await expect(kubectl.kubectlLint([], 'default')).rejects.toThrow()
    })
 
    test('gets kubectl, validates kubeconfig, and lints the manifests', async () => {
       process.env['KUBECONFIG'] = 'kubeconfig'
       const pathToTool = 'pathToTool'
-      jest
-         .spyOn(io, 'which')
-         .mockResolvedValue(path.join(pathToTool, 'kubectl.exe'))
+      vi.spyOn(io, 'which').mockResolvedValue(
+         path.join(pathToTool, 'kubectl.exe')
+      )
       mockStatusCode = 0
 
       const sampleManifests = [

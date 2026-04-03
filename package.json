@@ -2,12 +2,12 @@
    "name": "k8s-lint-action",
    "version": "3.0.1",
    "private": true,
-   "main": "lib/run.js",
+   "type": "module",
+   "main": "lib/index.js",
    "scripts": {
-      "prebuild": "npm i @vercel/ncc",
-      "build": "ncc build src/run.ts -o lib",
-      "test": "jest",
-      "test-coverage": "jest --coverage",
+      "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node24 --outfile=lib/index.js",
+      "test": "vitest run",
+      "test-coverage": "vitest run --coverage",
       "format": "prettier --write .",
       "format-check": "prettier --check .",
       "prepare": "husky"
@@ -24,12 +24,11 @@
       "husky": "^9.1.7"
    },
    "devDependencies": {
-      "@types/jest": "^30.0.0",
       "@types/node": "^25.0.9",
-      "@vercel/ncc": "^0.38.4",
-      "jest": "^30.2.0",
       "prettier": "^3.8.0",
-      "ts-jest": "^29.4.6",
-      "typescript": "5.9.3"
+      "typescript": "5.9.3",
+      "esbuild": "^0.25.11",
+      "vitest": "^3.2.4",
+      "@vitest/coverage-v8": "^3.2.4"
    }
 }

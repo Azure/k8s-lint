@@ -19,5 +19,3 @@ export async function kubeconform() {
       await kubeconformLint(manifests, kubeconformOpts)
    }
 }
-
-kubeconform().catch(core.setFailed)

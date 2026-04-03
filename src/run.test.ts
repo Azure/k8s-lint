@@ -2,16 +2,18 @@ import * as run from '../src/run'
 import * as kubeconform from './kubeconform/kubeconform'
 import * as kubectl from './kubectl/kubectl'
 import * as core from '@actions/core'
+import {describe, expect, test, vi} from 'vitest'
 
 describe('run', () => {
    test('runs kubectl dry run based on input', async () => {
-      jest.spyOn(core, 'getInput').mockImplementation((input) => {
+      vi.spyOn(core, 'getInput').mockImplementation((input) => {
          if (input == 'manifests')
             return 'manifest1.yaml\nmanifest2.yaml\nmanifest3.yaml'
          if (input == 'lintType') return 'dryrun'
          if (input == 'namespace') return 'sampleNamespace'
+         return ''
       })
-      jest.spyOn(kubectl, 'kubectlLint').mockImplementation()
+      vi.spyOn(kubectl, 'kubectlLint').mockImplementation(async () => {})
 
       expect(await run.kubeconform()).toBeUndefined()
       expect(core.getInput).toHaveBeenCalledTimes(3)
@@ -22,13 +24,14 @@ describe('run', () => {
    })
 
    test('uses default namespace if input not given', async () => {
-      jest.spyOn(core, 'getInput').mockImplementation((input) => {
+      vi.spyOn(core, 'getInput').mockImplementation((input) => {
          if (input == 'manifests')
             return 'manifest1.yaml\nmanifest2.yaml\nmanifest3.yaml'
          if (input == 'lintType') return 'dryrun'
          if (input == 'namespace') return ''
+         return ''
       })
-      jest.spyOn(kubectl, 'kubectlLint').mockImplementation()
+      vi.spyOn(kubectl, 'kubectlLint').mockImplementation(async () => {})
 
       expect(await run.kubeconform()).toBeUndefined()
       expect(core.getInput).toHaveBeenCalledTimes(3)
@@ -39,13 +42,16 @@ describe('run', () => {
    })
 
    test('runs kubeconform on manifests based on input', async () => {
-      jest.spyOn(core, 'getInput').mockImplementation((input) => {
+      vi.spyOn(core, 'getInput').mockImplementation((input) => {
          if (input == 'manifests')
             return 'manifest1.yaml\nmanifest2.yaml\nmanifest3.yaml'
          if (input == 'lintType') return 'kubeconform'
          if (input == 'kubeconformOpts') return '-summary'
+         return ''
       })
-      jest.spyOn(kubeconform, 'kubeconformLint').mockImplementation()
+      vi.spyOn(kubeconform, 'kubeconformLint').mockImplementation(
+         async () => {}
+      )
 
       expect(await run.kubeconform()).toBeUndefined()
       expect(core.getInput).toHaveBeenCalledTimes(3)
@@ -56,13 +62,16 @@ describe('run', () => {
    })
 
    test('uses -summary option if input not given', async () => {
-      jest.spyOn(core, 'getInput').mockImplementation((input) => {
+      vi.spyOn(core, 'getInput').mockImplementation((input) => {
          if (input == 'manifests')
             return 'manifest1.yaml\nmanifest2.yaml\nmanifest3.yaml'
          if (input == 'lintType') return 'kubeconform'
          if (input == 'kubeconformOpts') return ''
+         return ''
       })
-      jest.spyOn(kubeconform, 'kubeconformLint').mockImplementation()
+      vi.spyOn(kubeconform, 'kubeconformLint').mockImplementation(
+         async () => {}
+      )
 
       expect(await run.kubeconform()).toBeUndefined()
       expect(core.getInput).toHaveBeenCalledTimes(3)

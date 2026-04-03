@@ -1,4 +1,4 @@
-import * as kubeconform from './kubeconform'
+import {beforeEach, describe, expect, test, vi} from 'vitest'
 import * as core from '@actions/core'
 import * as fs from 'fs'
 import * as toolCache from '@actions/tool-cache'
@@ -8,11 +8,37 @@ import * as path from 'path'
 import * as util from 'util'
 import {ToolRunner} from '@actions/exec/lib/toolrunner'
 
-var mockStatusCode: number
-const mockExecFn = jest.fn().mockImplementation(() => mockStatusCode)
-jest.mock('@actions/exec/lib/toolrunner', () => {
+const osMockState = vi.hoisted(() => ({
+   arch: 'x64',
+   type: 'Linux'
+}))
+
+const fsMockState = vi.hoisted(() => ({
+   chmodSync: vi.fn()
+}))
+
+vi.mock('os', async () => {
+   const actual = await vi.importActual<typeof import('os')>('os')
    return {
-      ToolRunner: jest.fn().mockImplementation(() => {
+      ...actual,
+      arch: vi.fn(() => osMockState.arch),
+      type: vi.fn(() => osMockState.type)
+   }
+})
+
+vi.mock('fs', async () => {
+   const actual = await vi.importActual<typeof import('fs')>('fs')
+   return {
+      ...actual,
+      chmodSync: fsMockState.chmodSync
+   }
+})
+
+var mockStatusCode: number
+const mockExecFn = vi.fn().mockImplementation(() => mockStatusCode)
+vi.mock('@actions/exec/lib/toolrunner', () => {
+   return {
+      ToolRunner: vi.fn().mockImplementation(() => {
          return {
             exec: mockExecFn
          }
@@ -20,9 +46,11 @@ jest.mock('@actions/exec/lib/toolrunner', () => {
    }
 })
 
+import * as kubeconform from './kubeconform'
+
 describe('Kubeconform', () => {
    beforeEach(() => {
-      jest.clearAllMocks()
+      vi.clearAllMocks()
    })
 
    test.each([
@@ -31,7 +59,7 @@ describe('Kubeconform', () => {
    ])(
       'getKubeconformArch() - return on %s os arch %s kubeconform arch',
       (osArch, kubeconformArch) => {
-         jest.spyOn(os, 'arch').mockReturnValue(osArch as 'arm64' | 'x64')
+         osMockState.arch = osArch
 
          expect(kubeconform.getKubeconformArch()).toBe(kubeconformArch)
          expect(os.arch).toHaveBeenCalled()
@@ -41,7 +69,7 @@ describe('Kubeconform', () => {
    test.each([['arm64'], ['amd64']])(
       'returns url to download kubeconform for Linux %s',
       (arch) => {
-         jest.spyOn(os, 'type').mockReturnValue('Linux')
+         osMockState.type = 'Linux'
          const kubeconformLinuxUrl = util.format(
             'https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-%s.tar.gz',
             arch
@@ -56,7 +84,7 @@ describe('Kubeconform', () => {
    test.each([['arm64'], ['amd64']])(
       'returns url to download kubeconform for Darwin %s',
       (arch) => {
-         jest.spyOn(os, 'type').mockReturnValue('Darwin')
+         osMockState.type = 'Darwin'
          const kubeconformLinuxUrl = util.format(
             'https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-darwin-%s.tar.gz',
             arch
@@ -71,7 +99,7 @@ describe('Kubeconform', () => {
    test.each([['arm64'], ['amd64']])(
       'returns url to download kubeconform for Windows %s',
       (arch) => {
-         jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
+         osMockState.type = 'Windows_NT'
          const kubeconformLinuxUrl = util.format(
             'https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-windows-%s.zip',
             arch
@@ -84,13 +112,11 @@ describe('Kubeconform', () => {
    )
 
    test('downloads kubeconform, extract zip, and returns path to it', async () => {
-      jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
-      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
-      jest
-         .spyOn(toolCache, 'extractZip')
-         .mockResolvedValue('pathToExtractedTool')
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
-      jest.spyOn(core, 'addPath').mockImplementation()
+      osMockState.type = 'Windows_NT'
+      vi.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      vi.spyOn(toolCache, 'extractZip').mockResolvedValue('pathToExtractedTool')
+      fsMockState.chmodSync.mockImplementation(() => {})
+      vi.spyOn(core, 'addPath').mockImplementation(() => {})
 
       expect(await kubeconform.downloadKubeconform()).toBe(
          path.join('pathToExtractedTool', 'kubeconform.exe')
@@ -106,16 +132,14 @@ describe('Kubeconform', () => {
    })
 
    test('downloads kubeconform, extract tar, and returns path to it', async () => {
-      jest.spyOn(os, 'type').mockReturnValue('Linux')
-      jest
-         .spyOn(toolCache, 'downloadTool')
-         .mockResolvedValue(path.join('pathToToolDir', 'tool'))
-      jest.spyOn(io, 'cp').mockImplementation()
-      jest
-         .spyOn(toolCache, 'extractTar')
-         .mockResolvedValue('pathToExtractedTool')
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
-      jest.spyOn(core, 'addPath').mockImplementation()
+      osMockState.type = 'Linux'
+      vi.spyOn(toolCache, 'downloadTool').mockResolvedValue(
+         path.join('pathToToolDir', 'tool')
+      )
+      vi.spyOn(io, 'cp').mockImplementation(async () => undefined as never)
+      vi.spyOn(toolCache, 'extractTar').mockResolvedValue('pathToExtractedTool')
+      fsMockState.chmodSync.mockImplementation(() => {})
+      vi.spyOn(core, 'addPath').mockImplementation(() => {})
 
       expect(await kubeconform.downloadKubeconform()).toBe(
          path.join('pathToExtractedTool', 'kubeconform')
@@ -137,10 +161,10 @@ describe('Kubeconform', () => {
    })
 
    test('throws error if download tool fails', async () => {
-      jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
-      jest
-         .spyOn(toolCache, 'downloadTool')
-         .mockRejectedValue(new Error('Unable to download'))
+      osMockState.type = 'Windows_NT'
+      vi.spyOn(toolCache, 'downloadTool').mockRejectedValue(
+         new Error('Unable to download')
+      )
 
       await expect(kubeconform.downloadKubeconform()).rejects.toThrow()
       expect(os.type).toHaveBeenCalled()
@@ -148,7 +172,7 @@ describe('Kubeconform', () => {
    })
 
    test('Gets path to kubeconform and uses it on manifests', async () => {
-      jest.spyOn(io, 'which').mockResolvedValue('pathToTool')
+      vi.spyOn(io, 'which').mockResolvedValue('pathToTool')
       mockStatusCode = 0
 
       const kubeconformOpts = '-summary'
@@ -177,14 +201,12 @@ describe('Kubeconform', () => {
    })
 
    test('check if kubeconform is already installed, else download, and use it on manifests', async () => {
-      jest.spyOn(io, 'which').mockReturnValue(Promise.resolve(''))
-      jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
-      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
-      jest
-         .spyOn(toolCache, 'extractZip')
-         .mockResolvedValue('pathToExtractedTool')
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
-      jest.spyOn(core, 'addPath').mockImplementation()
+      vi.spyOn(io, 'which').mockReturnValue(Promise.resolve(''))
+      osMockState.type = 'Windows_NT'
+      vi.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      vi.spyOn(toolCache, 'extractZip').mockResolvedValue('pathToExtractedTool')
+      fsMockState.chmodSync.mockImplementation(() => {})
+      vi.spyOn(core, 'addPath').mockImplementation(() => {})
       mockStatusCode = 0
 
       const kubeconformOpts = '-summary'
@@ -213,7 +235,7 @@ describe('Kubeconform', () => {
    })
 
    test('throw if kubeconform fails on a manifest', async () => {
-      jest.spyOn(io, 'which').mockResolvedValue('pathToTool')
+      vi.spyOn(io, 'which').mockResolvedValue('pathToTool')
       mockStatusCode = 1
 
       const kubeconformOpts = '-summary'
