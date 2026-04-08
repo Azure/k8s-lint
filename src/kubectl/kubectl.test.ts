@@ -1,4 +1,4 @@
-import * as kubectl from './kubectl'
+import * as kubectl from './kubectl.js'
 import * as io from '@actions/io'
 import * as actionsExec from '@actions/exec'
 import * as path from 'path'

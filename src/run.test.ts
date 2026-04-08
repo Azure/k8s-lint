@@ -16,15 +16,15 @@ vi.mock('@actions/core', () => ({
    getInput: coreMockState.getInput
 }))
 
-vi.mock('./kubeconform/kubeconform', () => ({
+vi.mock('./kubeconform/kubeconform.js', () => ({
    kubeconformLint: kubeconformMockState.kubeconformLint
 }))
 
-vi.mock('./kubectl/kubectl', () => ({
+vi.mock('./kubectl/kubectl.js', () => ({
    kubectlLint: kubectlMockState.kubectlLint
 }))
 
-import * as run from './run'
+import * as run from './run.js'
 
 describe('run', () => {
    test('runs kubectl dry run based on input', async () => {

@@ -13,7 +13,7 @@ vi.mock('os', async () => {
    }
 })
 
-import * as utils from '../src/utils'
+import * as utils from '../src/utils.js'
 
 describe('Get executable extension', () => {
    test('returns .exe when os is Windows', () => {

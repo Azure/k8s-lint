@@ -5,7 +5,7 @@ import * as toolCache from '@actions/tool-cache'
 import * as core from '@actions/core'
 import * as io from '@actions/io'
 import * as actionsExec from '@actions/exec'
-import {getExecutableExtension} from '../utils'
+import {getExecutableExtension} from '../utils.js'
 
 const TOOL_NAME = 'kubeconform'
 

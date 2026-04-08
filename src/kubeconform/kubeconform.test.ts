@@ -85,7 +85,7 @@ vi.mock('@actions/core', () => {
    }
 })
 
-import * as kubeconform from './kubeconform'
+import * as kubeconform from './kubeconform.js'
 
 describe('Kubeconform', () => {
    beforeEach(() => {

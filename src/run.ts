@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 
-import {kubeconformLint} from './kubeconform/kubeconform'
-import {kubectlLint} from './kubectl/kubectl'
+import {kubeconformLint} from './kubeconform/kubeconform.js'
+import {kubectlLint} from './kubectl/kubectl.js'
 
 export async function kubeconform() {
    // get inputs
