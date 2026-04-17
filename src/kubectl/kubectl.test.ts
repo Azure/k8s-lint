@@ -1,33 +1,12 @@
-import * as kubectl from './kubectl.js'
-import * as io from '@actions/io'
-import * as actionsExec from '@actions/exec'
-import * as path from 'path'
 import {beforeEach, describe, expect, test, vi} from 'vitest'
+import * as path from 'path'
 
-const execMockState = vi.hoisted(() => {
-   const state = {
-      statusCode: 0,
-      exec: vi.fn(async () => state.statusCode)
-   }
+vi.mock('@actions/io')
+vi.mock('@actions/exec')
 
-   return state
-})
-
-const ioMockState = vi.hoisted(() => ({
-   which: vi.fn(async () => '')
-}))
-
-vi.mock('@actions/io', () => {
-   return {
-      which: ioMockState.which
-   }
-})
-
-vi.mock('@actions/exec', () => {
-   return {
-      exec: execMockState.exec
-   }
-})
+const io = await import('@actions/io')
+const actionsExec = await import('@actions/exec')
+const kubectl = await import('./kubectl.js')
 
 describe('Kubectl', () => {
    beforeEach(() => {
@@ -35,20 +14,23 @@ describe('Kubectl', () => {
    })
 
    test('throws if kubeconfig not set', async () => {
+      delete process.env['KUBECONFIG']
       await expect(kubectl.kubectlLint([], 'default')).rejects.toThrow()
    })
 
    test("throws if kubectl can't be found", async () => {
       process.env['KUBECONFIG'] = 'kubeconfig'
-      ioMockState.which.mockResolvedValue('')
+      vi.mocked(io.which).mockResolvedValue('')
       await expect(kubectl.kubectlLint([], 'default')).rejects.toThrow()
    })
 
    test('gets kubectl, validates kubeconfig, and lints the manifests', async () => {
       process.env['KUBECONFIG'] = 'kubeconfig'
       const pathToTool = 'pathToTool'
-      ioMockState.which.mockResolvedValue(path.join(pathToTool, 'kubectl.exe'))
-      execMockState.statusCode = 0
+      vi.mocked(io.which).mockResolvedValue(
+         path.join(pathToTool, 'kubectl.exe')
+      )
+      vi.mocked(actionsExec.exec).mockResolvedValue(0)
 
       const sampleManifests = [
          'manifest1.yaml',
@@ -89,6 +71,6 @@ describe('Kubectl', () => {
             'default'
          ]
       )
-      expect(execMockState.exec).toHaveBeenCalledTimes(3)
+      expect(actionsExec.exec).toHaveBeenCalledTimes(3)
    })
 })

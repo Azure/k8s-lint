@@ -1,33 +1,27 @@
-import {describe, expect, test, vi} from 'vitest'
-import * as os from 'os'
+import {describe, expect, test, vi, beforeEach} from 'vitest'
 
-const osMockState = vi.hoisted(() => ({
-   type: 'Linux'
-}))
+vi.mock('os')
 
-vi.mock('os', async () => {
-   const actual = await vi.importActual<typeof import('os')>('os')
-   return {
-      ...actual,
-      type: vi.fn(() => osMockState.type)
-   }
-})
-
-import * as utils from '../src/utils.js'
+const os = await import('os')
+const utils = await import('./utils.js')
 
 describe('Get executable extension', () => {
+   beforeEach(() => {
+      vi.clearAllMocks()
+   })
+
    test('returns .exe when os is Windows', () => {
-      osMockState.type = 'Windows_NT'
+      vi.mocked(os.type).mockReturnValue('Windows_NT')
       expect(utils.getExecutableExtension()).toBe('.exe')
       expect(os.type).toHaveBeenCalled()
    })
 
    test('returns empty string for non-windows OS', () => {
-      osMockState.type = 'Darwin'
+      vi.mocked(os.type).mockReturnValue('Darwin')
       expect(utils.getExecutableExtension()).toBe('')
       expect(os.type).toHaveBeenCalled()
 
-      osMockState.type = 'Other'
+      vi.mocked(os.type).mockReturnValue('Other')
       expect(utils.getExecutableExtension()).toBe('')
       expect(os.type).toHaveBeenCalled()
    })

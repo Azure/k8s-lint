@@ -1,34 +1,21 @@
-import {describe, expect, test, vi} from 'vitest'
+import {describe, expect, test, vi, beforeEach} from 'vitest'
 
-const coreMockState = vi.hoisted(() => ({
-   getInput: vi.fn<(name: string) => string>()
-}))
+vi.mock('@actions/core')
+vi.mock('./kubeconform/kubeconform.js')
+vi.mock('./kubectl/kubectl.js')
 
-const kubeconformMockState = vi.hoisted(() => ({
-   kubeconformLint: vi.fn(async () => undefined)
-}))
-
-const kubectlMockState = vi.hoisted(() => ({
-   kubectlLint: vi.fn(async () => undefined)
-}))
-
-vi.mock('@actions/core', () => ({
-   getInput: coreMockState.getInput
-}))
-
-vi.mock('./kubeconform/kubeconform.js', () => ({
-   kubeconformLint: kubeconformMockState.kubeconformLint
-}))
-
-vi.mock('./kubectl/kubectl.js', () => ({
-   kubectlLint: kubectlMockState.kubectlLint
-}))
-
-import * as run from './run.js'
+const core = await import('@actions/core')
+const kubeconform = await import('./kubeconform/kubeconform.js')
+const kubectl = await import('./kubectl/kubectl.js')
+const run = await import('./run.js')
 
 describe('run', () => {
+   beforeEach(() => {
+      vi.clearAllMocks()
+   })
+
    test('runs kubectl dry run based on input', async () => {
-      coreMockState.getInput.mockImplementation((input) => {
+      vi.mocked(core.getInput).mockImplementation((input) => {
          if (input == 'manifests')
             return 'manifest1.yaml\nmanifest2.yaml\nmanifest3.yaml'
          if (input == 'lintType') return 'dryrun'
@@ -37,15 +24,15 @@ describe('run', () => {
       })
 
       expect(await run.kubeconform()).toBeUndefined()
-      expect(coreMockState.getInput).toHaveBeenCalledTimes(3)
-      expect(kubectlMockState.kubectlLint).toHaveBeenCalledWith(
+      expect(core.getInput).toHaveBeenCalledTimes(3)
+      expect(kubectl.kubectlLint).toHaveBeenCalledWith(
          ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
          'sampleNamespace'
       )
    })
 
    test('uses default namespace if input not given', async () => {
-      coreMockState.getInput.mockImplementation((input) => {
+      vi.mocked(core.getInput).mockImplementation((input) => {
          if (input == 'manifests')
             return 'manifest1.yaml\nmanifest2.yaml\nmanifest3.yaml'
          if (input == 'lintType') return 'dryrun'
@@ -54,15 +41,15 @@ describe('run', () => {
       })
 
       expect(await run.kubeconform()).toBeUndefined()
-      expect(coreMockState.getInput).toHaveBeenCalledTimes(3)
-      expect(kubectlMockState.kubectlLint).toHaveBeenCalledWith(
+      expect(core.getInput).toHaveBeenCalledTimes(3)
+      expect(kubectl.kubectlLint).toHaveBeenCalledWith(
          ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
          'default'
       )
    })
 
    test('runs kubeconform on manifests based on input', async () => {
-      coreMockState.getInput.mockImplementation((input) => {
+      vi.mocked(core.getInput).mockImplementation((input) => {
          if (input == 'manifests')
             return 'manifest1.yaml\nmanifest2.yaml\nmanifest3.yaml'
          if (input == 'lintType') return 'kubeconform'
@@ -71,15 +58,15 @@ describe('run', () => {
       })
 
       expect(await run.kubeconform()).toBeUndefined()
-      expect(coreMockState.getInput).toHaveBeenCalledTimes(3)
-      expect(kubeconformMockState.kubeconformLint).toHaveBeenCalledWith(
+      expect(core.getInput).toHaveBeenCalledTimes(3)
+      expect(kubeconform.kubeconformLint).toHaveBeenCalledWith(
          ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
          '-summary'
       )
    })
 
    test('uses -summary option if input not given', async () => {
-      coreMockState.getInput.mockImplementation((input) => {
+      vi.mocked(core.getInput).mockImplementation((input) => {
          if (input == 'manifests')
             return 'manifest1.yaml\nmanifest2.yaml\nmanifest3.yaml'
          if (input == 'lintType') return 'kubeconform'
@@ -88,8 +75,8 @@ describe('run', () => {
       })
 
       expect(await run.kubeconform()).toBeUndefined()
-      expect(coreMockState.getInput).toHaveBeenCalledTimes(3)
-      expect(kubeconformMockState.kubeconformLint).toHaveBeenCalledWith(
+      expect(core.getInput).toHaveBeenCalledTimes(3)
+      expect(kubeconform.kubeconformLint).toHaveBeenCalledWith(
          ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
          '-summary'
       )
