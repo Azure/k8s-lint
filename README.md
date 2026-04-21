@@ -5,7 +5,7 @@ Use this action to lint/validate your manifest files. Refer to the action metada
 ## Lint using kubeconform
 
 ```yaml
-- uses: azure/k8s-lint@v3
+- uses: azure/k8s-lint@v4
   with:
      manifests: |
         manifests/deployment.yml
@@ -19,7 +19,7 @@ Requires Kubectl to be installed (you can use the [Azure/setup-kubectl](https://
 
 ```yaml
 - uses: azure/setup-kubectl@v4
-- uses: azure/k8s-lint@v3
+- uses: azure/k8s-lint@v4
   with:
      lintType: dryrun
      manifests: |
