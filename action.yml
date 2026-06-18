@@ -1,5 +1,5 @@
-name: 'Lint k8s manifest files'
-description: 'Lint k8s manifest files'
+name: 'Lint k8s manifest files and folders'
+description: 'Lint k8s manifest files and folders. Also supports Helm charts.'
 inputs:
    # Please ensure you have used either azure/k8s-actions/aks-set-context or azure/k8s-actions/k8s-set-context in the workflow before this action if using dryrun
    manifests:
