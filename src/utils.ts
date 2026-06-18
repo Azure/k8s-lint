@@ -1,6 +1,12 @@
 import * as os from 'os'
 import * as path from 'path'
-import {globSync, statSync, existsSync, mkdtempSync, writeFileSync} from 'node:fs'
+import {
+   globSync,
+   statSync,
+   existsSync,
+   mkdtempSync,
+   writeFileSync
+} from 'node:fs'
 import {getExecOutput} from '@actions/exec'
 
 export function getExecutableExtension(): string {
@@ -81,9 +87,7 @@ export async function renderHelmChart(
    }
    const result = await getExecOutput('helm', args, {silent: true})
    if (result.exitCode !== 0) {
-      throw new Error(
-         `helm template failed for ${chartDir}:\n${result.stderr}`
-      )
+      throw new Error(`helm template failed for ${chartDir}:\n${result.stderr}`)
    }
    const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'k8s-lint-helm-'))
    const outPath = path.join(tmpDir, 'rendered.yaml')

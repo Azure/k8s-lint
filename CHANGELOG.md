@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.0.0] - 2026-06-18
+
+### Added
+
+- Helm chart directories are now auto-detected (via `Chart.yaml`) and rendered with `helm template` before linting — pass the chart path directly in the `manifests` input
+
 ## [4.2.0] - 2026-06-18
 
 ### Added

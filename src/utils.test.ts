@@ -82,10 +82,7 @@ describe('expandManifests', () => {
    })
 
    test('passes literal file paths through unchanged', () => {
-      const result = utils.expandManifests([
-         'deployment.yaml',
-         'service.yaml'
-      ])
+      const result = utils.expandManifests(['deployment.yaml', 'service.yaml'])
       expect(result).toEqual(['deployment.yaml', 'service.yaml'])
    })
 
@@ -210,8 +207,8 @@ describe('renderHelmChart', () => {
          exitCode: 1
       })
 
-      await expect(
-         utils.renderHelmChart('charts/myapp')
-      ).rejects.toThrow('helm template failed for charts/myapp')
+      await expect(utils.renderHelmChart('charts/myapp')).rejects.toThrow(
+         'helm template failed for charts/myapp'
+      )
    })
 })
