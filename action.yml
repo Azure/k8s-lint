@@ -19,7 +19,8 @@ inputs:
       default: 'default'
 
 branding:
-   color: 'green' # optional, decorates the entry in the GitHub Marketplace
+  icon: 'box'
+  color: 'blue'
 runs:
    using: 'node24'
    main: 'lib/index.js'
