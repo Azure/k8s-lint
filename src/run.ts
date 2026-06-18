@@ -2,12 +2,13 @@ import * as core from '@actions/core'
 
 import {kubeconformLint} from './kubeconform/kubeconform.js'
 import {kubectlLint} from './kubectl/kubectl.js'
+import {expandManifests} from './utils.js'
 
 export async function kubeconform() {
    // get inputs
    const type = core.getInput('lintType', {required: true})
    const manifestsInput = core.getInput('manifests', {required: true})
-   const manifests = manifestsInput.split('\n')
+   const manifests = expandManifests(manifestsInput.split('\n'))
 
    if (type.toLocaleLowerCase() === 'dryrun') {
       const namespace =

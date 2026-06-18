@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.2.0] - 2026-06-18
+
+### Added
+
+- Glob patterns and directories are now supported in the `manifests` input — entries like `kubernetes/*.yaml` or `manifests/` are expanded to matching files automatically
+
 ## [4.1.0] - 2026-06-18
 
 ### Fixed
