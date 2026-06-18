@@ -6,14 +6,26 @@ vi.mock('./kubectl/kubectl.js')
 vi.mock('node:fs', async (importOriginal) => ({
    ...(await importOriginal<typeof import('node:fs')>()),
    globSync: vi.fn(),
-   statSync: vi.fn()
+   statSync: vi.fn(),
+   existsSync: vi.fn(),
+   mkdtempSync: vi.fn(),
+   writeFileSync: vi.fn()
+}))
+vi.mock('@actions/exec', () => ({
+   getExecOutput: vi.fn()
+}))
+vi.mock('os', async (importOriginal) => ({
+   ...(await importOriginal<typeof import('os')>()),
+   tmpdir: vi.fn()
 }))
 
 const core = await import('@actions/core')
 const kubeconform = await import('./kubeconform/kubeconform.js')
 const kubectl = await import('./kubectl/kubectl.js')
+const exec = await import('@actions/exec')
 const run = await import('./run.js')
 const fs = await import('node:fs')
+const os = await import('os')
 
 describe('run', () => {
    beforeEach(() => {
@@ -64,7 +76,7 @@ describe('run', () => {
       })
 
       expect(await run.kubeconform()).toBeUndefined()
-      expect(core.getInput).toHaveBeenCalledTimes(3)
+      expect(core.getInput).toHaveBeenCalledTimes(4)
       expect(kubeconform.kubeconformLint).toHaveBeenCalledWith(
          ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
          '-summary'
@@ -81,7 +93,7 @@ describe('run', () => {
       })
 
       expect(await run.kubeconform()).toBeUndefined()
-      expect(core.getInput).toHaveBeenCalledTimes(3)
+      expect(core.getInput).toHaveBeenCalledTimes(4)
       expect(kubeconform.kubeconformLint).toHaveBeenCalledWith(
          ['manifest1.yaml', 'manifest2.yaml', 'manifest3.yaml'],
          '-summary'
@@ -101,8 +113,40 @@ describe('run', () => {
       ] as any)
 
       expect(await run.kubeconform()).toBeUndefined()
+      expect(core.getInput).toHaveBeenCalledTimes(4)
       expect(kubeconform.kubeconformLint).toHaveBeenCalledWith(
          ['kubernetes/deployment.yaml', 'kubernetes/service.yaml'],
+         '-summary'
+      )
+   })
+
+   test('renders Helm chart and lints the rendered output', async () => {
+      vi.mocked(core.getInput).mockImplementation((input) => {
+         if (input == 'manifests') return 'charts/myapp'
+         if (input == 'lintType') return 'kubeconform'
+         if (input == 'kubeconformOpts') return '-summary'
+         if (input == 'namespace') return ''
+         return ''
+      })
+      vi.mocked(fs.statSync).mockReturnValue({isDirectory: () => true} as any)
+      vi.mocked(fs.existsSync).mockReturnValue(true) // Chart.yaml present
+      vi.mocked(fs.mkdtempSync).mockReturnValue('/tmp/k8s-lint-helm-abc')
+      vi.mocked(fs.writeFileSync).mockImplementation(() => {})
+      vi.mocked(exec.getExecOutput).mockResolvedValue({
+         stdout: 'apiVersion: v1\nkind: Pod\n',
+         stderr: '',
+         exitCode: 0
+      })
+      vi.mocked(os.tmpdir).mockReturnValue('/tmp')
+
+      expect(await run.kubeconform()).toBeUndefined()
+      expect(exec.getExecOutput).toHaveBeenCalledWith(
+         'helm',
+         ['template', 'myapp', 'charts/myapp', '--namespace', 'default'],
+         {silent: true}
+      )
+      expect(kubeconform.kubeconformLint).toHaveBeenCalledWith(
+         ['/tmp/k8s-lint-helm-abc/rendered.yaml'],
          '-summary'
       )
    })
