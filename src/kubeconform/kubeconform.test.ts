@@ -202,6 +202,24 @@ describe('Kubeconform', () => {
       expect(actionsExec.exec).toHaveBeenCalledTimes(3)
    })
 
+   test('splits multiple kubeconform options into separate args', async () => {
+      vi.mocked(io.which).mockResolvedValue('pathToTool')
+      vi.mocked(actionsExec.exec).mockResolvedValue(0)
+
+      const kubeconformOpts = '-summary -strict'
+      const sampleManifests = ['manifest1.yaml']
+      expect(
+         await kubeconform.kubeconformLint(sampleManifests, kubeconformOpts)
+      ).toBeUndefined()
+      expect(io.which).toHaveBeenCalledWith('kubeconform', false)
+      expect(actionsExec.exec).toHaveBeenCalledWith('pathToTool', [
+         '-summary',
+         '-strict',
+         'manifest1.yaml'
+      ])
+      expect(actionsExec.exec).toHaveBeenCalledTimes(1)
+   })
+
    test('throw if kubeconform fails on a manifest', async () => {
       vi.mocked(io.which).mockResolvedValue('pathToTool')
       vi.mocked(actionsExec.exec).mockResolvedValue(1)

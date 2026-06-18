@@ -25,7 +25,7 @@ export async function kubeconformLint(
       (await io.which(TOOL_NAME, false)) || (await downloadKubeconform())
    for (const manifest of manifests) {
       const code = await actionsExec.exec(toolPath, [
-         kubeconformOptions,
+         ...kubeconformOptions.split(/\s+/).filter(Boolean),
          manifest
       ])
 

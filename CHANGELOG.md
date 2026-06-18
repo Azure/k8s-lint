@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.1.0] - 2026-06-18
+
+### Fixed
+
+- Split `kubeconformOpts` string into separate arguments so multiple flags (e.g. `-summary -strict`) are passed correctly to kubeconform
+
 ## [4.0.0] - 2026-04-20
 
 ### Changed
