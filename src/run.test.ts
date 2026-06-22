@@ -18,6 +18,10 @@ vi.mock('os', async (importOriginal) => ({
    ...(await importOriginal<typeof import('os')>()),
    tmpdir: vi.fn()
 }))
+vi.mock('@actions/io', () => ({
+   which: vi.fn(),
+   cp: vi.fn()
+}))
 
 const core = await import('@actions/core')
 const kubeconform = await import('./kubeconform/kubeconform.js')
@@ -26,6 +30,7 @@ const exec = await import('@actions/exec')
 const run = await import('./run.js')
 const fs = await import('node:fs')
 const os = await import('os')
+const io = await import('@actions/io')
 
 describe('run', () => {
    beforeEach(() => {
@@ -120,6 +125,19 @@ describe('run', () => {
       )
    })
 
+   test('throws when no manifests are found after expansion', async () => {
+      vi.mocked(core.getInput).mockImplementation((input) => {
+         if (input == 'manifests') return ''
+         if (input == 'lintType') return 'kubeconform'
+         if (input == 'kubeconformOpts') return '-summary'
+         return ''
+      })
+
+      await expect(run.kubeconform()).rejects.toThrow(
+         'No valid manifest files found to lint'
+      )
+   })
+
    test('renders Helm chart and lints the rendered output', async () => {
       vi.mocked(core.getInput).mockImplementation((input) => {
          if (input == 'manifests') return 'charts/myapp'
@@ -138,10 +156,11 @@ describe('run', () => {
          exitCode: 0
       })
       vi.mocked(os.tmpdir).mockReturnValue('/tmp')
+      vi.mocked(io.which).mockResolvedValue('/usr/local/bin/helm')
 
       expect(await run.kubeconform()).toBeUndefined()
       expect(exec.getExecOutput).toHaveBeenCalledWith(
-         'helm',
+         '/usr/local/bin/helm',
          ['template', 'myapp', 'charts/myapp', '--namespace', 'default'],
          {silent: true}
       )

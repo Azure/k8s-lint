@@ -2,7 +2,8 @@ import * as core from '@actions/core'
 
 import {kubeconformLint} from './kubeconform/kubeconform.js'
 import {kubectlLint} from './kubectl/kubectl.js'
-import {expandManifests, isHelmChart, renderHelmChart} from './utils.js'
+import {expandManifests} from './utils.js'
+import {isHelmChart, renderHelmChart} from './helm/helm.js'
 
 export async function kubeconform() {
    const type = core.getInput('lintType', {required: true})
@@ -17,6 +18,10 @@ export async function kubeconform() {
       } else {
          manifests.push(m)
       }
+   }
+
+   if (manifests.length === 0) {
+      throw new Error('No valid manifest files found to lint')
    }
 
    if (type.toLocaleLowerCase() === 'dryrun') {

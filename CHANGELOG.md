@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.1.0] - 2026-06-22
+
+### Added
+
+- `getPlatform()`, `getArch()`, `getArchiveExtension()` shared helpers extracted to `utils.ts`, used by both helm and kubeconform modules
+
+### Changed
+
+- Helm code moved from `src/utils.ts` to dedicated `src/helm/helm.ts` module, matching the existing `src/kubeconform/` and `src/kubectl/` structure
+- Remaining `os.type()` calls replaced with the shared `getPlatform()` helper
+
 ## [5.0.0] - 2026-06-18
 
 ### Added

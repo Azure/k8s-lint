@@ -1,29 +1,34 @@
 import * as os from 'os'
 import * as path from 'path'
-import {
-   globSync,
-   statSync,
-   existsSync,
-   mkdtempSync,
-   writeFileSync
-} from 'node:fs'
-import {getExecOutput} from '@actions/exec'
+import {globSync, statSync, existsSync} from 'node:fs'
+import {isHelmChart} from './helm/helm.js'
 
 export function getExecutableExtension(): string {
-   if (os.type().match(/^Win/)) {
+   if (getPlatform() === 'windows') {
       return '.exe'
    }
    return ''
 }
 
-export function isHelmChart(dir: string): boolean {
-   try {
-      const stat = statSync(dir)
-      if (!stat.isDirectory()) return false
-      return existsSync(path.join(dir, 'Chart.yaml'))
-   } catch {
-      return false
+export function getPlatform(): string {
+   switch (os.type()) {
+      case 'Windows_NT':
+         return 'windows'
+      case 'Darwin':
+         return 'darwin'
+      default:
+         return 'linux'
    }
+}
+
+export function getArch(): string {
+   const arch = os.arch()
+   if (arch === 'x64') return 'amd64'
+   return arch
+}
+
+export function getArchiveExtension(): string {
+   return getPlatform() === 'windows' ? 'zip' : 'tar.gz'
 }
 
 const GLOB_CHARS_RE = /[*?[{}]/
@@ -44,7 +49,32 @@ export function expandManifests(rawPaths: string[]): string[] {
       let files: string[]
 
       if (GLOB_CHARS_RE.test(trimmed)) {
-         files = globSync(trimmed)
+         const matches = globSync(trimmed)
+         if (matches.length === 0) {
+            files = [trimmed]
+         } else {
+            files = []
+            for (const match of matches) {
+               try {
+                  const stat = statSync(match)
+                  if (stat.isDirectory()) {
+                     if (isHelmChart(match)) {
+                        files.push(match)
+                     } else {
+                        files.push(
+                           ...globSync(MANIFEST_EXT, {cwd: match}).map((f) =>
+                              path.join(match, f)
+                           )
+                        )
+                     }
+                  } else {
+                     files.push(match)
+                  }
+               } catch {
+                  files.push(match)
+               }
+            }
+         }
       } else {
          try {
             const stat = statSync(trimmed)
@@ -73,24 +103,4 @@ export function expandManifests(rawPaths: string[]): string[] {
    }
 
    return result
-}
-
-// Render a Helm chart to a temporary YAML file and return its path.
-export async function renderHelmChart(
-   chartDir: string,
-   namespace?: string
-): Promise<string> {
-   const releaseName = path.basename(chartDir)
-   const args = ['template', releaseName, chartDir]
-   if (namespace) {
-      args.push('--namespace', namespace)
-   }
-   const result = await getExecOutput('helm', args, {silent: true})
-   if (result.exitCode !== 0) {
-      throw new Error(`helm template failed for ${chartDir}:\n${result.stderr}`)
-   }
-   const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'k8s-lint-helm-'))
-   const outPath = path.join(tmpDir, 'rendered.yaml')
-   writeFileSync(outPath, result.stdout)
-   return outPath
 }
