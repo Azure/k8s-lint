@@ -5,17 +5,14 @@ import * as toolCache from '@actions/tool-cache'
 import * as core from '@actions/core'
 import * as io from '@actions/io'
 import * as actionsExec from '@actions/exec'
-import {getExecutableExtension} from '../utils.js'
+import {
+   getExecutableExtension,
+   getPlatform,
+   getArch,
+   getArchiveExtension
+} from '../utils.js'
 
 const TOOL_NAME = 'kubeconform'
-
-export function getKubeconformArch(): string {
-   const arch = os.arch()
-   if (arch === 'x64') {
-      return 'amd64'
-   }
-   return arch
-}
 
 export async function kubeconformLint(
    manifests: string[],
@@ -25,7 +22,7 @@ export async function kubeconformLint(
       (await io.which(TOOL_NAME, false)) || (await downloadKubeconform())
    for (const manifest of manifests) {
       const code = await actionsExec.exec(toolPath, [
-         kubeconformOptions,
+         ...kubeconformOptions.split(/\s+/).filter(Boolean),
          manifest
       ])
 
@@ -36,26 +33,19 @@ export async function kubeconformLint(
 }
 
 export async function downloadKubeconform(): Promise<string> {
-   const runnerArch = getKubeconformArch()
    const downloadPath = await toolCache.downloadTool(
-      getKubeconformDownloadUrl(runnerArch)
+      getKubeconformDownloadUrl()
    )
 
-   // extract from download
-   let extractedPath
-   switch (os.type()) {
-      case 'Linux':
-      case 'Darwin':
-         const newPath = path.join(path.dirname(downloadPath), 'tool.tar.gz')
-         await io.cp(downloadPath, newPath)
-         extractedPath = await toolCache.extractTar(newPath)
-         break
-      case 'Windows_NT':
-      default:
-         extractedPath = await toolCache.extractZip(downloadPath)
+   let extractedPath: string
+   if (getPlatform() === 'windows') {
+      extractedPath = await toolCache.extractZip(downloadPath)
+   } else {
+      const archivePath = path.join(path.dirname(downloadPath), 'tool.tar.gz')
+      await io.cp(downloadPath, archivePath)
+      extractedPath = await toolCache.extractTar(archivePath)
    }
 
-   // get and make executable
    const kubeconformPath = path.join(
       extractedPath,
       TOOL_NAME + getExecutableExtension()
@@ -65,16 +55,8 @@ export async function downloadKubeconform(): Promise<string> {
    return kubeconformPath
 }
 
-export function getKubeconformDownloadUrl(arch: string): string {
-   switch (os.type()) {
-      case 'Linux':
-         return `https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-${arch}.tar.gz`
-
-      case 'Darwin':
-         return `https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-darwin-${arch}.tar.gz`
-
-      case 'Windows_NT':
-      default:
-         return `https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-windows-${arch}.zip`
-   }
+export function getKubeconformDownloadUrl(): string {
+   const platform = getPlatform()
+   const arch = getArch()
+   return `https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-${platform}-${arch}.${getArchiveExtension()}`
 }
