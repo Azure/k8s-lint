@@ -27,6 +27,25 @@ Requires Kubectl to be installed (you can use the [Azure/setup-kubectl](https://
         manifests/service.yml
 ```
 
+## Development
+
+This repository enforces a **7-day dependency freshness ("bake") period**: newly
+published npm packages are not adopted until they are at least 7 days old. This
+is enforced two ways:
+
+- **Dependabot** uses a 7-day `cooldown` and runs monthly, grouping minor/patch
+  updates into a single PR (major updates get individual PRs).
+- **`.npmrc`** sets `min-release-age=7` (days) with `engine-strict=true`, which
+  requires **npm >= 11.10.0**. `npm install` will fail on older npm with a clear
+  message — upgrade with `npm install -g npm@latest`.
+
+**Security exception:** to adopt an urgent patch that is less than 7 days old,
+install it once with the age check disabled:
+
+```sh
+npm install <pkg> --config.min-release-age=0
+```
+
 ## Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a

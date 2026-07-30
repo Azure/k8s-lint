@@ -18,6 +18,9 @@
    ],
    "author": "GitHub",
    "license": "MIT",
+   "engines": {
+      "npm": ">=11.10.0"
+   },
    "dependencies": {
       "@actions/core": "^3.0.1",
       "@actions/exec": "^3.0.0",
@@ -25,7 +28,7 @@
       "husky": "^9.1.7"
    },
    "devDependencies": {
-      "@types/node": "^26.1.2",
+      "@types/node": "^26.1.1",
       "@vitest/coverage-v8": "^4.1.10",
       "esbuild": "^0.28.1",
       "prettier": "^3.9.6",
