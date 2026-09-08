@@ -19,8 +19,8 @@ jobs:
            with:
               minikube-version: 1.33.0
               kubernetes-version: 1.29.1
-              driver: 'none'
-           timeout-minutes: 3
+              driver: 'docker'
+           timeout-minutes: 6
 
          - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
          - name: Setup Node.js
