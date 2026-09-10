@@ -1,5 +1,5 @@
-name: 'Lint k8s manifest files'
-description: 'Lint k8s manifest files'
+name: 'Lint k8s manifest files and folders'
+description: 'Lint k8s manifest files, folders, and Helm charts'
 inputs:
    # Please ensure you have used either azure/k8s-actions/aks-set-context or azure/k8s-actions/k8s-set-context in the workflow before this action if using dryrun
    manifests:
@@ -19,7 +19,8 @@ inputs:
       default: 'default'
 
 branding:
-   color: 'green' # optional, decorates the entry in the GitHub Marketplace
+   icon: 'box'
+   color: 'blue'
 runs:
    using: 'node24'
    main: 'lib/index.js'

@@ -1,0 +1,30 @@
+{
+   "name": "k8s-lint-action",
+   "image": "mcr.microsoft.com/devcontainers/typescript-node:4-24-bookworm",
+
+   "features": {
+      "ghcr.io/devcontainers/features/git:1": {},
+      "ghcr.io/devcontainers/features/github-cli:1": {}
+   },
+
+   "postCreateCommand": "npm install && npm run prepare",
+   "remoteUser": "node",
+   "updateRemoteUserUID": true,
+
+   "customizations": {
+      "vscode": {
+         "extensions": [
+            "dbaeumer.vscode-eslint",
+            "esbenp.prettier-vscode",
+            "vitest.explorer",
+            "github.vscode-github-actions"
+         ],
+         "settings": {
+            "editor.formatOnSave": true,
+            "editor.defaultFormatter": "esbenp.prettier-vscode",
+            "files.eol": "\n",
+            "typescript.tsdk": "node_modules/typescript/lib"
+         }
+      }
+   }
+}

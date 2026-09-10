@@ -1,6 +1,5 @@
 import {beforeEach, describe, expect, test, vi} from 'vitest'
 import * as path from 'path'
-import * as util from 'util'
 
 vi.mock('os')
 vi.mock('fs')
@@ -23,64 +22,50 @@ describe('Kubeconform', () => {
    })
 
    test.each([
-      ['arm64', 'arm64'],
-      ['x64', 'amd64']
+      [
+         'Linux',
+         'arm64',
+         'https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-arm64.tar.gz'
+      ],
+      [
+         'Linux',
+         'amd64',
+         'https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz'
+      ],
+      [
+         'Darwin',
+         'arm64',
+         'https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-darwin-arm64.tar.gz'
+      ],
+      [
+         'Darwin',
+         'amd64',
+         'https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-darwin-amd64.tar.gz'
+      ],
+      [
+         'Windows_NT',
+         'arm64',
+         'https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-windows-arm64.zip'
+      ],
+      [
+         'Windows_NT',
+         'amd64',
+         'https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-windows-amd64.zip'
+      ]
    ])(
-      'getKubeconformArch() - return on %s os arch %s kubeconform arch',
-      (osArch, kubeconformArch) => {
+      'getKubeconformDownloadUrl() for %s %s',
+      (osType, osArch, expectedUrl) => {
+         vi.mocked(os.type).mockReturnValue(osType)
          vi.mocked(os.arch).mockReturnValue(osArch)
-         expect(kubeconform.getKubeconformArch()).toBe(kubeconformArch)
+         expect(kubeconform.getKubeconformDownloadUrl()).toBe(expectedUrl)
+         expect(os.type).toHaveBeenCalled()
          expect(os.arch).toHaveBeenCalled()
-      }
-   )
-
-   test.each([['arm64'], ['amd64']])(
-      'returns url to download kubeconform for Linux %s',
-      (arch) => {
-         vi.mocked(os.type).mockReturnValue('Linux')
-         const kubeconformLinuxUrl = util.format(
-            'https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-%s.tar.gz',
-            arch
-         )
-         expect(kubeconform.getKubeconformDownloadUrl(arch)).toBe(
-            kubeconformLinuxUrl
-         )
-         expect(os.type).toHaveBeenCalled()
-      }
-   )
-
-   test.each([['arm64'], ['amd64']])(
-      'returns url to download kubeconform for Darwin %s',
-      (arch) => {
-         vi.mocked(os.type).mockReturnValue('Darwin')
-         const kubeconformLinuxUrl = util.format(
-            'https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-darwin-%s.tar.gz',
-            arch
-         )
-         expect(kubeconform.getKubeconformDownloadUrl(arch)).toBe(
-            kubeconformLinuxUrl
-         )
-         expect(os.type).toHaveBeenCalled()
-      }
-   )
-
-   test.each([['arm64'], ['amd64']])(
-      'returns url to download kubeconform for Windows %s',
-      (arch) => {
-         vi.mocked(os.type).mockReturnValue('Windows_NT')
-         const kubeconformLinuxUrl = util.format(
-            'https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-windows-%s.zip',
-            arch
-         )
-         expect(kubeconform.getKubeconformDownloadUrl(arch)).toBe(
-            kubeconformLinuxUrl
-         )
-         expect(os.type).toHaveBeenCalled()
       }
    )
 
    test('downloads kubeconform, extract zip, and returns path to it', async () => {
       vi.mocked(os.type).mockReturnValue('Windows_NT')
+      vi.mocked(os.arch).mockReturnValue('amd64')
       vi.mocked(toolCache.downloadTool).mockResolvedValue('pathToTool')
       vi.mocked(toolCache.extractZip).mockResolvedValue('pathToExtractedTool')
       vi.mocked(fs.chmodSync).mockImplementation(() => {})
@@ -90,6 +75,7 @@ describe('Kubeconform', () => {
          path.join('pathToExtractedTool', 'kubeconform.exe')
       )
       expect(os.type).toHaveBeenCalled()
+      expect(os.arch).toHaveBeenCalled()
       expect(toolCache.downloadTool).toHaveBeenCalled()
       expect(toolCache.extractZip).toHaveBeenCalledWith('pathToTool')
       expect(fs.chmodSync).toHaveBeenCalledWith(
@@ -101,6 +87,7 @@ describe('Kubeconform', () => {
 
    test('downloads kubeconform, extract tar, and returns path to it', async () => {
       vi.mocked(os.type).mockReturnValue('Linux')
+      vi.mocked(os.arch).mockReturnValue('amd64')
       vi.mocked(toolCache.downloadTool).mockResolvedValue(
          path.join('pathToToolDir', 'tool')
       )
@@ -113,6 +100,7 @@ describe('Kubeconform', () => {
          path.join('pathToExtractedTool', 'kubeconform')
       )
       expect(os.type).toHaveBeenCalled()
+      expect(os.arch).toHaveBeenCalled()
       expect(toolCache.downloadTool).toHaveBeenCalled()
       expect(io.cp).toHaveBeenCalledWith(
          path.join('pathToToolDir', 'tool'),
@@ -130,6 +118,7 @@ describe('Kubeconform', () => {
 
    test('throws error if download tool fails', async () => {
       vi.mocked(os.type).mockReturnValue('Windows_NT')
+      vi.mocked(os.arch).mockReturnValue('amd64')
       vi.mocked(toolCache.downloadTool).mockRejectedValue(
          new Error('Unable to download')
       )
@@ -171,6 +160,7 @@ describe('Kubeconform', () => {
    test('check if kubeconform is already installed, else download, and use it on manifests', async () => {
       vi.mocked(io.which).mockResolvedValue('')
       vi.mocked(os.type).mockReturnValue('Windows_NT')
+      vi.mocked(os.arch).mockReturnValue('amd64')
       vi.mocked(toolCache.downloadTool).mockResolvedValue('pathToTool')
       vi.mocked(toolCache.extractZip).mockResolvedValue('pathToExtractedTool')
       vi.mocked(fs.chmodSync).mockImplementation(() => {})
@@ -200,6 +190,24 @@ describe('Kubeconform', () => {
          ['-summary', 'manifest3.yaml']
       )
       expect(actionsExec.exec).toHaveBeenCalledTimes(3)
+   })
+
+   test('splits multiple kubeconform options into separate args', async () => {
+      vi.mocked(io.which).mockResolvedValue('pathToTool')
+      vi.mocked(actionsExec.exec).mockResolvedValue(0)
+
+      const kubeconformOpts = '-summary -strict'
+      const sampleManifests = ['manifest1.yaml']
+      expect(
+         await kubeconform.kubeconformLint(sampleManifests, kubeconformOpts)
+      ).toBeUndefined()
+      expect(io.which).toHaveBeenCalledWith('kubeconform', false)
+      expect(actionsExec.exec).toHaveBeenCalledWith('pathToTool', [
+         '-summary',
+         '-strict',
+         'manifest1.yaml'
+      ])
+      expect(actionsExec.exec).toHaveBeenCalledTimes(1)
    })
 
    test('throw if kubeconform fails on a manifest', async () => {
