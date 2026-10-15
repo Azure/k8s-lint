@@ -1,5 +1,34 @@
 # Changelog
 
+## [5.1.0] - 2026-06-22
+
+### Added
+
+- `getPlatform()`, `getArch()`, `getArchiveExtension()` shared helpers extracted to `utils.ts`, used by both helm and kubeconform modules
+
+### Changed
+
+- Helm code moved from `src/utils.ts` to dedicated `src/helm/helm.ts` module, matching the existing `src/kubeconform/` and `src/kubectl/` structure
+- Remaining `os.type()` calls replaced with the shared `getPlatform()` helper
+
+## [5.0.0] - 2026-06-18
+
+### Added
+
+- Helm chart directories are now auto-detected (via `Chart.yaml`) and rendered with `helm template` before linting — pass the chart path directly in the `manifests` input
+
+## [4.2.0] - 2026-06-18
+
+### Added
+
+- Glob patterns and directories are now supported in the `manifests` input — entries like `kubernetes/*.yaml` or `manifests/` are expanded to matching files automatically
+
+## [4.1.0] - 2026-06-18
+
+### Fixed
+
+- Split `kubeconformOpts` string into separate arguments so multiple flags (e.g. `-summary -strict`) are passed correctly to kubeconform
+
 ## [4.0.0] - 2026-04-20
 
 ### Changed
