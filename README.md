@@ -5,12 +5,23 @@ Use this action to lint/validate your manifest files. Refer to the action metada
 ## Lint using kubeconform
 
 ```yaml
-- uses: azure/k8s-lint@v4
+- uses: azure/k8s-lint@v5
   with:
      manifests: |
         manifests/deployment.yml
         manifests/service.yml
      kubeconformOpts: -summary
+```
+
+Or use a folder and multiple options:
+
+```yaml
+- name: Run kubeconform
+  uses: azure/k8s-lint@v5
+  with:
+     manifests: deploy/helm/
+     lintType: kubeconform
+     kubeconformOpts: -summary -strict -ignore-missing-schemas
 ```
 
 ## Lint using kubernetes server dryrun
@@ -19,7 +30,7 @@ Requires Kubectl to be installed (you can use the [Azure/setup-kubectl](https://
 
 ```yaml
 - uses: azure/setup-kubectl@v4
-- uses: azure/k8s-lint@v4
+- uses: azure/k8s-lint@v5
   with:
      lintType: dryrun
      manifests: |
